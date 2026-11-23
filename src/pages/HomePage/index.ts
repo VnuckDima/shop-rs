@@ -7,6 +7,7 @@ import { Brands } from "@widgets/Brands";
 import { Benefits } from "@widgets/Benefits";
 import { Footer } from "@widgets/Footer";
 import { formatPrice } from "@shared/lib/product";
+import { filterProducts } from "@shared/lib/catalog";
 import { el } from "@shared/lib/dom";
 import "./ui/HomePage.css";
 
@@ -120,17 +121,10 @@ export function HomePage({
   const listHost = document.createElement("div");
 
   const renderProducts = () => {
-    const query = state.query.trim().toLowerCase();
-    const filtered = products.filter((product) => {
-      const matchesCategory =
-        state.category === "Все" || product.category === state.category;
-      const matchesTag =
-        state.tag === null || product.badge === state.tag;
-      const matchesQuery =
-        query === "" ||
-        product.title.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query);
-      return matchesCategory && matchesTag && matchesQuery;
+    const filtered = filterProducts(products, {
+      category: state.category,
+      query: state.query,
+      tag: state.tag,
     });
 
     const headingTitle = page.querySelector<HTMLElement>(

@@ -1,9 +1,12 @@
 import { createCart } from "@features/cart";
 import { createProductModal } from "@features/product-modal";
+import { AboutPage } from "@pages/AboutPage";
 import { HomePage } from "@pages/HomePage";
 import { createCartDrawer } from "@widgets/CartDrawer";
 import { Header, updateCartCount } from "@widgets/Header";
+import { el } from "@shared/lib/dom";
 import { MOCK_PRODUCTS, CATEGORIES } from "./mock/products";
+import { TEAM } from "./mock/team";
 import "./styles/global.css";
 
 function bootstrap(root: HTMLElement): void {
@@ -61,10 +64,23 @@ function bootstrap(root: HTMLElement): void {
   };
 
   cart.subscribe(() => syncCart());
-
   syncCart();
 
-  root.append(header, page.root, modal.root, drawer.root);
+  const shop = el(
+    "div",
+    { class: "shop" },
+    header,
+    page.root,
+    modal.root,
+    drawer.root,
+  );
+
+  const about = AboutPage({
+    team: TEAM,
+    onStart: () => root.replaceChildren(shop),
+  });
+
+  root.replaceChildren(about);
 }
 
 export function mountApp(selector = "#app"): void {
