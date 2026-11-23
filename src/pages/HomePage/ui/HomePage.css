@@ -1,19 +1,26 @@
-.home__inner {
-  max-width: var(--container);
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+.home__catalog {
+  padding-top: 1rem;
 }
 
-.home__hero {
-  margin-bottom: 2rem;
+.home__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
 }
 
-.home__title {
-  font-size: 1.75rem;
-  font-weight: 700;
+.home__heading-title {
+  font-size: 1.6rem;
+  font-weight: 800;
 }
 
-.home__subtitle {
-  margin-top: 0.5rem;
+.home__heading-total {
+  font-size: 0.9rem;
   color: var(--color-text-muted);
+}
+
+.home__heading-total strong {
+  color: var(--color-primary);
 }

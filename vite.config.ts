@@ -1,16 +1,24 @@
 import { defineConfig } from "vite";
-import { fileURLToPath, URL } from "node:url";
+
+const layers = [
+  "app",
+  "pages",
+  "widgets",
+  "features",
+  "entities",
+  "shared",
+] as const;
+
+const src = (path: string): string =>
+  new URL(`./src/${path}`, import.meta.url).pathname;
+
+const alias = Object.fromEntries(
+  layers.map((layer) => [`@${layer}`, src(layer)]),
+);
 
 export default defineConfig({
   resolve: {
-    alias: {
-      "@app": fileURLToPath(new URL("./src/app", import.meta.url)),
-      "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
-      "@widgets": fileURLToPath(new URL("./src/widgets", import.meta.url)),
-      "@features": fileURLToPath(new URL("./src/features", import.meta.url)),
-      "@entities": fileURLToPath(new URL("./src/entities", import.meta.url)),
-      "@shared": fileURLToPath(new URL("./src/shared", import.meta.url)),
-    },
+    alias,
   },
   server: {
     port: 5173,
