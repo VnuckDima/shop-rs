@@ -20,8 +20,14 @@
 }
 
 .benefit {
+  display: flex;
+  flex-direction: column;
   text-align: center;
-  padding: 1.5rem 1.25rem;
+  padding: 0 0 1.5rem;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
   background: var(--color-bg-soft);
   border: 1px solid var(--color-line);
   border-radius: var(--radius);
@@ -33,17 +39,32 @@
   transform: translateY(-3px);
 }
 
+.benefit__image {
+  display: block;
+  width: 100%;
+  height: 132px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--color-line);
+}
+
 .benefit__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  background: var(--color-primary-soft);
+  width: 48px;
+  height: 48px;
+  margin: -24px auto 0.9rem;
+  position: relative;
+  z-index: 1;
+  color: var(--color-primary);
+  background: var(--color-surface);
   border: 1px solid var(--color-primary);
   border-radius: 14px;
+}
+
+.benefit__icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .benefit__title {
@@ -57,5 +78,6 @@
   color: var(--color-text-muted);
   max-width: 30ch;
   margin: 0 auto;
+  padding: 0 1.25rem;
   line-height: 1.5;
 }

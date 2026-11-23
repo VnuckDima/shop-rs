@@ -26,7 +26,8 @@
   margin-top: 0.75rem;
   font-size: 1.05rem;
   max-width: 48ch;
-  color: rgba(10, 21, 0, 0.75);
+  color: var(--color-on-primary);
+  opacity: 0.78;
 }
 
 .promo__cta {
@@ -48,7 +49,8 @@
   font-size: clamp(6rem, 14vw, 13rem);
   font-weight: 900;
   line-height: 1;
-  color: rgba(10, 21, 0, 0.14);
+  color: var(--color-on-primary);
+  opacity: 0.14;
 }
 
 @media (max-width: 720px) {

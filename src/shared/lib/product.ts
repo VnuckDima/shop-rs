@@ -9,6 +9,7 @@ export type Product = {
   price: number;
   oldPrice?: number;
   category: string;
+  brand?: string;
   rating: number;
   imageUrl: string;
   badge?: "hit" | "new" | "sale";

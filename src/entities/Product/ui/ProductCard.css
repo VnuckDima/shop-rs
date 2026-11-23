@@ -92,7 +92,7 @@
 }
 
 .product-card__star {
-  color: #ffc94d;
+  color: var(--color-star);
 }
 
 .product-card__prices {

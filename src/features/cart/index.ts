@@ -9,6 +9,15 @@ export type CartState = {
   lines: CartLine[];
 };
 
+export type CartStorage = {
+  load: () => CartLine[];
+  save: (lines: CartLine[]) => void;
+};
+
+export type CartOptions = {
+  storage?: CartStorage;
+};
+
 export type CartApi = {
   add: (product: Product, qty?: number) => void;
   setQty: (productId: number, qty: number) => void;
@@ -22,11 +31,14 @@ export type CartApi = {
   subscribe: (listener: (state: CartState) => void) => () => void;
 };
 
-export function createCart(): CartApi {
-  const state: CartState = { lines: [] };
+export function createCart({ storage }: CartOptions = {}): CartApi {
+  const state: CartState = { lines: storage ? storage.load() : [] };
   const listeners = new Set<(state: CartState) => void>();
 
-  const notify = () => listeners.forEach((listener) => listener(state));
+  const notify = () => {
+    storage?.save(state.lines);
+    listeners.forEach((listener) => listener(state));
+  };
 
   const findIndex = (productId: number): number =>
     state.lines.findIndex((line) => line.product.id === productId);

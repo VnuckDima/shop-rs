@@ -6,11 +6,17 @@ export type CatalogFilter = {
   category?: string;
   query?: string;
   tag?: CatalogTag;
+  brand?: string | null;
 };
 
 export function filterProducts(
   products: Product[],
-  { category = "Все", query = "", tag = null }: CatalogFilter = {},
+  {
+    category = "Все",
+    query = "",
+    tag = null,
+    brand = null,
+  }: CatalogFilter = {},
 ): Product[] {
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -20,11 +26,13 @@ export function filterProducts(
 
     const matchesTag = tag === null || product.badge === tag;
 
+    const matchesBrand = brand === null || product.brand === brand;
+
     const matchesQuery =
       normalizedQuery === "" ||
       product.title.toLowerCase().includes(normalizedQuery) ||
       product.category.toLowerCase().includes(normalizedQuery);
 
-    return matchesCategory && matchesTag && matchesQuery;
+    return matchesCategory && matchesTag && matchesBrand && matchesQuery;
   });
 }

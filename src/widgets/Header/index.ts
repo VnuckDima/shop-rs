@@ -1,4 +1,5 @@
 import { el } from "@shared/lib/dom";
+import { ThemeToggle } from "@shared/ui/ThemeToggle";
 import "./ui/Header.css";
 
 export type NavKey = "catalog" | "new" | "sale" | "brands";
@@ -8,6 +9,7 @@ export type HeaderProps = {
   onSearch?: (query: string) => void;
   onCartClick?: () => void;
   onNav?: (key: NavKey) => void;
+  onHome?: () => void;
 };
 
 const NAV_LINKS: { key: NavKey; label: string }[] = [
@@ -22,6 +24,7 @@ export function Header({
   onSearch,
   onCartClick,
   onNav,
+  onHome,
 }: HeaderProps): HTMLElement {
   const header = el("header", { class: "header" });
 
@@ -72,15 +75,21 @@ export function Header({
   );
   cartButton.addEventListener("click", () => onCartClick?.());
 
+  const logo = el(
+    "a",
+    { class: "header__logo", href: "#" },
+    el("span", { class: "header__logo-mark", text: "◈" }),
+    " Shop-RS",
+  );
+  logo.addEventListener("click", (event) => {
+    event.preventDefault();
+    onHome?.();
+  });
+
   const inner = el(
     "div",
     { class: "header__inner container" },
-    el(
-      "a",
-      { class: "header__logo", href: "#" },
-      el("span", { class: "header__logo-mark", text: "◈" }),
-      " Shop-RS",
-    ),
+    logo,
     el(
       "nav",
       { class: "header__nav", "aria-label": "Основная навигация" },
@@ -95,6 +104,7 @@ export function Header({
         el("span", { class: "header__search-icon", "aria-hidden": "true", text: "⌕" }),
         searchInput,
       ),
+      ThemeToggle(),
       cartButton,
     ),
   );

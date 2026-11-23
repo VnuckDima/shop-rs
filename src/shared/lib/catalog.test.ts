@@ -8,6 +8,7 @@ const products: Product[] = [
     title: "Смартфон Nova",
     price: 100,
     category: "Смартфоны",
+    brand: "Samsung",
     rating: 4.8,
     imageUrl: "",
     badge: "new",
@@ -25,6 +26,7 @@ const products: Product[] = [
     title: "Наушники Sound",
     price: 50,
     category: "Аудио",
+    brand: "Sony",
     rating: 4.7,
     imageUrl: "",
     badge: "sale",
@@ -71,6 +73,11 @@ describe("filterProducts", () => {
       tag: "sale",
     });
     expect(result.map((p) => p.id)).toEqual([4]);
+  });
+
+  it("фильтрует по бренду", () => {
+    const result = filterProducts(products, { brand: "Sony" });
+    expect(result.map((p) => p.id)).toEqual([3]);
   });
 
   it("пустой результат, если ничего не подходит", () => {

@@ -211,7 +211,7 @@
 }
 
 .cart-line__remove:hover {
-  color: #ff6b6b;
+  color: var(--color-danger);
 }
 
 .cart-line__sum {

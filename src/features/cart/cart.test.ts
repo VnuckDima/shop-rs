@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createCart } from "./index";
+import { createCartStorage } from "./storage";
 import type { Product } from "@entities/Product";
 
 const makeProduct = (overrides: Partial<Product> & { id: number }): Product => ({
@@ -100,5 +101,44 @@ describe("createCart", () => {
     cart.inc(1);
 
     expect(calls).toBe(2);
+  });
+
+  it("восстанавливает корзину из хранилища и сохраняет изменения", () => {
+    const product = makeProduct({ id: 1, price: 100 });
+    const save = vi.fn();
+    const cart = createCart({
+      storage: {
+        load: () => [{ product, qty: 2 }],
+        save,
+      },
+    });
+
+    expect(cart.count()).toBe(2);
+
+    cart.inc(1);
+
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(save.mock.calls[0][0]).toEqual([{ product, qty: 3 }]);
+  });
+
+  it("createCartStorage пишет и читает localStorage", () => {
+    const store = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+    });
+
+    try {
+      const product = makeProduct({ id: 7, price: 100 });
+      const storage = createCartStorage([product]);
+
+      storage.save([{ product, qty: 3 }]);
+
+      expect(storage.load()).toEqual([{ product, qty: 3 }]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

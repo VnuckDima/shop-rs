@@ -8,6 +8,7 @@ import { Benefits } from "@widgets/Benefits";
 import { Footer } from "@widgets/Footer";
 import { formatPrice } from "@shared/lib/product";
 import { filterProducts } from "@shared/lib/catalog";
+import type { BenefitKey } from "@shared/lib/benefits";
 import { el } from "@shared/lib/dom";
 import "./ui/HomePage.css";
 
@@ -17,6 +18,8 @@ export type HomePageProps = {
   total: number;
   onAddToCart: (product: Product) => void;
   onOpen: (product: Product) => void;
+  onBrandSelect?: (brand: string) => void;
+  onInfoSelect?: (key: BenefitKey) => void;
 };
 
 export type HomePageController = {
@@ -24,6 +27,7 @@ export type HomePageController = {
   setQuery: (query: string) => void;
   setCategory: (category: string) => void;
   setTag: (tag: "new" | "sale" | null) => void;
+  setBrand: (brand: string | null) => void;
   setCart: (total: number, count: number) => void;
 };
 
@@ -33,21 +37,18 @@ export function HomePage({
   total,
   onAddToCart,
   onOpen,
+  onBrandSelect,
+  onInfoSelect,
 }: HomePageProps): HomePageController {
   const state = {
     query: "",
     category: categories[0] ?? "Все",
     tag: null as "new" | "sale" | null,
+    brand: null as string | null,
   };
 
   const page = document.createElement("div");
   page.className = "home";
-
-  const scrollToCatalog = () => {
-    document
-      .getElementById("catalog")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const hero = Hero({
     slides: [
@@ -57,7 +58,7 @@ export function HomePage({
         subtitle:
           "Смартфоны, ноутбуки и аксессуары ведущих брендов. Выгодные цены, быстрая доставка и гарантия.",
         ctaLabel: "Смотреть каталог",
-        onCtaClick: scrollToCatalog,
+        onCtaClick: () => goToCategory("Все"),
         image: "/img/hero.jpg",
         alt: "Техника и электроника",
       },
@@ -67,7 +68,7 @@ export function HomePage({
         subtitle:
           "Мощные камеры, яркие экраны и быстрая зарядка. Найдите свой идеальный смартфон.",
         ctaLabel: "Выбрать смартфон",
-        onCtaClick: scrollToCatalog,
+        onCtaClick: () => goToCategory("Смартфоны"),
         image: "/img/phone.jpg",
         alt: "Смартфон",
       },
@@ -77,7 +78,7 @@ export function HomePage({
         subtitle:
           "Лёгкие, мощные и стильные. Для работы, учёбы и игр — по выгодной цене.",
         ctaLabel: "Смотреть ноутбуки",
-        onCtaClick: scrollToCatalog,
+        onCtaClick: () => goToCategory("Ноутбуки"),
         image: "/img/laptop.jpg",
         alt: "Ноутбук",
       },
@@ -113,6 +114,7 @@ export function HomePage({
     onSelect: (category) => {
       state.category = category;
       state.tag = null;
+      state.brand = null;
       updateActiveCategory(categoryNav, category);
       renderProducts();
     },
@@ -125,23 +127,47 @@ export function HomePage({
       category: state.category,
       query: state.query,
       tag: state.tag,
+      brand: state.brand,
     });
 
     const headingTitle = page.querySelector<HTMLElement>(
       "[data-heading-title]",
     );
     if (headingTitle) {
-      headingTitle.textContent =
-        state.tag === "new"
-          ? "Новинки"
-          : state.tag === "sale"
-          ? "Скидки"
-          : "Каталог товаров";
+      headingTitle.textContent = state.brand
+        ? `Бренд: ${state.brand}`
+        : state.tag === "new"
+        ? "Новинки"
+        : state.tag === "sale"
+        ? "Скидки"
+        : "Каталог товаров";
     }
 
     listHost.replaceChildren(
       ProductList({ products: filtered, onAddToCart, onOpen }),
     );
+  };
+
+  function goToCategory(category: string): void {
+    state.category = category;
+    state.tag = null;
+    state.brand = null;
+    updateActiveCategory(categoryNav, state.category);
+    renderProducts();
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  const applyBrand = (brand: string | null, scroll: boolean) => {
+    state.brand = brand && brand.length > 0 ? brand : null;
+    state.category = categories[0] ?? "Все";
+    state.tag = null;
+    updateActiveCategory(categoryNav, state.category);
+    renderProducts();
+    if (scroll) {
+      document
+        .getElementById("catalog")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   catalog.append(heading, categoryNav, listHost);
@@ -155,7 +181,10 @@ export function HomePage({
         .getElementById("catalog")
         ?.scrollIntoView({ behavior: "smooth" });
     },
-  }), Brands(), Benefits(), Footer());
+  }), Brands({
+    onSelect: (brand) =>
+      onBrandSelect ? onBrandSelect(brand) : applyBrand(brand, true),
+  }), Benefits({ onSelect: (key) => onInfoSelect?.(key) }), Footer());
 
   renderProducts();
 
@@ -176,16 +205,21 @@ export function HomePage({
     setCategory(category) {
       state.category = category;
       state.tag = null;
+      state.brand = null;
       updateActiveCategory(categoryNav, category);
       renderProducts();
     },
     setTag(tag) {
       state.tag = tag;
+      state.brand = null;
       if (tag) {
         state.category = categories[0] ?? "Все";
         updateActiveCategory(categoryNav, state.category);
       }
       renderProducts();
+    },
+    setBrand(brand) {
+      applyBrand(brand ?? "", false);
     },
     setCart,
   };

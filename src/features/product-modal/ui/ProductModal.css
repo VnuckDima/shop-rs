@@ -130,7 +130,7 @@
 }
 
 .modal__star {
-  color: #ffc94d;
+  color: var(--color-star);
 }
 
 .modal__muted {

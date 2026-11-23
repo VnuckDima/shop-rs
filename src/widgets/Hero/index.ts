@@ -71,6 +71,12 @@ export function Hero({ slides, interval = 6000 }: HeroProps): HTMLElement {
     slideEls.push(slideEl);
     slidesEl.appendChild(slideEl);
 
+    if (slide.onCtaClick) {
+      slideEl
+        .querySelector(".hero__media")
+        ?.addEventListener("click", () => slide.onCtaClick?.());
+    }
+
     const dot = document.createElement("button");
     dot.type = "button";
     dot.className = `hero__dot${index === 0 ? " is-active" : ""}`;

@@ -12,14 +12,28 @@ const BRANDS = [
   "Logitech",
 ];
 
-export function Brands(): HTMLElement {
+export type BrandsProps = {
+  onSelect?: (brand: string) => void;
+};
+
+export function Brands({ onSelect }: BrandsProps = {}): HTMLElement {
   const grid = el(
     "div",
     { class: "brands__grid" },
     ...BRANDS.map((brand) =>
-      el("span", { class: "brands__item", text: brand }),
+      el(
+        "button",
+        { type: "button", class: "brands__item", "data-brand": brand },
+        brand,
+      ),
     ),
   );
+
+  grid.querySelectorAll<HTMLButtonElement>("[data-brand]").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (item.dataset.brand) onSelect?.(item.dataset.brand);
+    });
+  });
 
   return el(
     "section",

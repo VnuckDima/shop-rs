@@ -1,4 +1,5 @@
 import { Button } from "@shared/ui/Button";
+import { ThemeToggle } from "@shared/ui/ThemeToggle";
 import { el } from "@shared/lib/dom";
 import "./ui/AboutPage.css";
 
@@ -45,18 +46,20 @@ export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
         : `https://github.com/${username}`;
 
       return el(
-        "article",
-        { class: "about__member" },
+        "a",
+        {
+          class: "about__member",
+          href,
+          target: "_blank",
+          rel: "noopener noreferrer",
+        },
         el("span", { class: "about__avatar", text: member.name.charAt(0) }),
         el(
           "div",
           { class: "about__member-info" },
           el("h3", { class: "about__member-name", text: member.name }),
-          el("a", {
+          el("span", {
             class: "about__member-github",
-            href,
-            target: "_blank",
-            rel: "noopener noreferrer",
             text: `@${username}`,
           }),
           el("p", { class: "about__member-role", text: member.role }),
@@ -86,6 +89,7 @@ export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
     el("div", { class: "about__actions" }, startButton),
   );
 
+  page.appendChild(el("div", { class: "about__toolbar" }, ThemeToggle()));
   page.appendChild(card);
 
   return page;

@@ -24,7 +24,7 @@
 }
 
 .category-nav__chip.is-active {
-  color: #05231f;
+  color: var(--color-on-primary);
   background: var(--color-primary);
   border-color: var(--color-primary);
   font-weight: 600;

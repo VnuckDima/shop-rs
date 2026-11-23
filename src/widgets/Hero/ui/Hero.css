@@ -86,6 +86,7 @@
   aspect-ratio: 720 / 560;
   border: 1px solid var(--color-line);
   box-shadow: var(--shadow);
+  cursor: pointer;
 }
 
 .hero__media img {

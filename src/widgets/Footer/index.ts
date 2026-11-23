@@ -30,9 +30,30 @@ export function Footer(): HTMLElement {
     el(
       "div",
       { class: "footer__socials" },
-      el("a", { class: "footer__social", href: "#", "aria-label": "Telegram", text: "TG" }),
-      el("a", { class: "footer__social", href: "#", "aria-label": "VK", text: "VK" }),
-      el("a", { class: "footer__social", href: "#", "aria-label": "YouTube", text: "YT" }),
+      el("a", {
+        class: "footer__social",
+        href: "https://t.me/rsschool",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        "aria-label": "Telegram RS School",
+        text: "TG",
+      }),
+      el("a", {
+        class: "footer__social",
+        href: "https://vk.com/rsschool",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        "aria-label": "VK RS School",
+        text: "VK",
+      }),
+      el("a", {
+        class: "footer__social",
+        href: "https://www.youtube.com/@RSSchool",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        "aria-label": "YouTube RS School",
+        text: "YT",
+      }),
     ),
   );
 
