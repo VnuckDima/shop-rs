@@ -3,9 +3,14 @@ import "./ui/Header.css";
 export type HeaderProps = {
   cartCount: number;
   onSearch?: (query: string) => void;
+  onCartClick?: () => void;
 };
 
-export function Header({ cartCount, onSearch }: HeaderProps): HTMLElement {
+export function Header({
+  cartCount,
+  onSearch,
+  onCartClick,
+}: HeaderProps): HTMLElement {
   const header = document.createElement("header");
   header.className = "header";
 
@@ -46,6 +51,10 @@ export function Header({ cartCount, onSearch }: HeaderProps): HTMLElement {
   input?.addEventListener("input", (e) => {
     onSearch?.((e.target as HTMLInputElement).value);
   });
+
+  header
+    .querySelector<HTMLButtonElement>(".header__cart")
+    ?.addEventListener("click", () => onCartClick?.());
 
   return header;
 }

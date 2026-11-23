@@ -1,6 +1,7 @@
 import { createCart } from "@features/cart";
 import { createProductModal } from "@features/product-modal";
 import { HomePage } from "@pages/HomePage";
+import { createCartDrawer } from "@widgets/CartDrawer";
 import { Header, updateCartCount } from "@widgets/Header";
 import { MOCK_PRODUCTS, CATEGORIES } from "./mock/products";
 import "./styles/global.css";
@@ -8,13 +9,24 @@ import "./styles/global.css";
 function bootstrap(root: HTMLElement): void {
   const cart = createCart();
 
+  const drawer = createCartDrawer({
+    cart,
+    onCheckout: () => {
+      cart.clear();
+      drawer.close();
+      window.alert("Заказ оформлен! Спасибо за покупку.");
+    },
+  });
+
   const modal = createProductModal({
+    cart,
     onAddToCart: (product) => cart.add(product),
   });
 
   const header = Header({
     cartCount: cart.count(),
     onSearch: (query) => page.setQuery(query),
+    onCartClick: () => drawer.toggle(),
   });
 
   const page = HomePage({
@@ -35,7 +47,7 @@ function bootstrap(root: HTMLElement): void {
 
   syncCart();
 
-  root.append(header, page.root, modal.root);
+  root.append(header, page.root, modal.root, drawer.root);
 }
 
 export function mountApp(selector = "#app"): void {
@@ -43,6 +55,5 @@ export function mountApp(selector = "#app"): void {
   if (!root) {
     throw new Error(`Root element "${selector}" not found`);
   }
-
   bootstrap(root);
 }

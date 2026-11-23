@@ -1,5 +1,5 @@
 .footer {
-  margin-top: 2rem;
+  padding: 2rem;
   background: var(--color-bg-soft);
   border-top: 1px solid var(--color-line);
 }
@@ -8,8 +8,6 @@
   display: grid;
   grid-template-columns: 1.6fr 1fr 1fr 1fr;
   gap: 2.5rem;
-  padding-top: 3rem;
-  padding-bottom: 2.5rem;
 }
 
 .footer__logo {
@@ -73,11 +71,12 @@
   border-color: var(--color-primary);
 }
 
-.footer__bottom {
+.footer .footer__bottom {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
   display: flex;
   justify-content: space-between;
-  padding-top: 1.25rem;
-  padding-bottom: 1.5rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
   border-top: 1px solid var(--color-line);

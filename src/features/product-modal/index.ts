@@ -1,3 +1,4 @@
+import type { CartApi } from "@features/cart";
 import type { Product } from "@shared/lib/product";
 import { formatPrice } from "@shared/lib/product";
 import { Button } from "@shared/ui/Button";
@@ -11,6 +12,7 @@ export type ProductModalApi = {
 
 export type ProductModalOptions = {
   onAddToCart?: (product: Product) => void;
+  cart?: CartApi;
 };
 
 const BADGE_LABEL: Record<NonNullable<Product["badge"]>, string> = {
@@ -21,6 +23,7 @@ const BADGE_LABEL: Record<NonNullable<Product["badge"]>, string> = {
 
 export function createProductModal({
   onAddToCart,
+  cart,
 }: ProductModalOptions = {}): ProductModalApi {
   const overlay = document.createElement("div");
   overlay.className = "modal";
@@ -69,15 +72,43 @@ export function createProductModal({
   const addSlot = $(".modal__add");
 
   let lastFocused: HTMLElement | null = null;
+  let currentProduct: Product | null = null;
+
+  const currentQty = (): number => {
+    if (!cart || !currentProduct) return 0;
+    return (
+      cart.lines().find((line) => line.product.id === currentProduct!.id)?.qty ??
+      0
+    );
+  };
+
+  const updateAddButton = () => {
+    if (!addButton) return;
+    const qty = currentQty();
+    addButton.textContent = qty > 0 ? `В корзине: ${qty}` : "В корзину";
+    addButton.classList.toggle("btn--in-cart", qty > 0);
+  };
+
+  const addButton = Button({
+    label: "В корзину",
+    onClick: () => {
+      if (currentProduct) onAddToCart?.(currentProduct);
+    },
+  });
+  addSlot.appendChild(addButton);
+
+  if (cart) cart.subscribe(updateAddButton);
 
   const close = () => {
     overlay.hidden = true;
     document.body.classList.remove("modal-open");
+    currentProduct = null;
     lastFocused?.focus();
   };
 
   const open = (product: Product) => {
     lastFocused = document.activeElement as HTMLElement | null;
+    currentProduct = product;
 
     image.src = product.imageUrl;
     image.alt = product.title;
@@ -118,9 +149,7 @@ export function createProductModal({
       ${discount ? `<span class="modal__discount">−${discount}%</span>` : ""}
     `;
 
-    addSlot.replaceChildren(
-      Button({ label: "В корзину", onClick: () => onAddToCart?.(product) }),
-    );
+    updateAddButton();
 
     overlay.hidden = false;
     document.body.classList.add("modal-open");
