@@ -1,4 +1,5 @@
 import { ProductCard, type Product } from "@entities/Product";
+import { el } from "@shared/lib/dom";
 import "./ui/ProductList.css";
 
 export type ProductListProps = {
@@ -17,12 +18,14 @@ export function ProductList({
 
   if (products.length === 0) {
     list.classList.add("product-list--empty");
-    const empty = document.createElement("div");
-    empty.className = "product-list__empty";
-    empty.innerHTML = `
-      <span class="product-list__empty-icon">🔍</span>
-      <p>Ничего не найдено. Попробуйте изменить запрос или категорию.</p>
-    `;
+    const empty = el(
+      "div",
+      { class: "product-list__empty" },
+      el("span", { class: "product-list__empty-icon", text: "🔍" }),
+      el("p", {
+        text: "Ничего не найдено. Попробуйте изменить запрос или категорию.",
+      }),
+    );
     list.appendChild(empty);
     return list;
   }

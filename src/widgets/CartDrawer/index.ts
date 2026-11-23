@@ -1,6 +1,7 @@
-import type { CartApi } from "@features/cart";
+import type { CartApi, CartLine } from "@features/cart";
 import { formatPrice } from "@shared/lib/product";
 import { Button } from "@shared/ui/Button";
+import { el } from "@shared/lib/dom";
 import "./ui/CartDrawer.css";
 
 export type CartDrawerApi = {
@@ -20,78 +21,123 @@ export function createCartDrawer({
   cart,
   onCheckout,
 }: CartDrawerOptions): CartDrawerApi {
-  const overlay = document.createElement("div");
-  overlay.className = "drawer";
-  overlay.hidden = true;
+  const overlay = el("div", { class: "drawer", hidden: "" });
+  const body = el("div", { class: "drawer__body" });
+  const footer = el("footer", { class: "drawer__footer" });
+  const closeButton = el("button", {
+    type: "button",
+    class: "drawer__close",
+    "data-close": "",
+    "aria-label": "Закрыть",
+    text: "✕",
+  });
 
-  overlay.innerHTML = `
-    <div class="drawer__backdrop" data-close></div>
-    <aside class="drawer__panel" role="dialog" aria-modal="true" aria-label="Корзина">
-      <header class="drawer__header">
-        <h2 class="drawer__title">Корзина</h2>
-        <button type="button" class="drawer__close" data-close aria-label="Закрыть">✕</button>
-      </header>
-      <div class="drawer__body"></div>
-      <footer class="drawer__footer"></footer>
-    </aside>
-  `;
+  const panel = el(
+    "aside",
+    {
+      class: "drawer__panel",
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": "Корзина",
+    },
+    el(
+      "header",
+      { class: "drawer__header" },
+      el("h2", { class: "drawer__title", text: "Корзина" }),
+      closeButton,
+    ),
+    body,
+    footer,
+  );
 
-  const $ = <T extends HTMLElement>(sel: string): T =>
-    overlay.querySelector<T>(sel)!;
-
-  const body = $(".drawer__body");
-  const footer = $(".drawer__footer");
+  overlay.append(el("div", { class: "drawer__backdrop", "data-close": "" }), panel);
 
   let lastFocused: HTMLElement | null = null;
 
+  const renderEmpty = () => {
+    body.appendChild(
+      el(
+        "div",
+        { class: "drawer__empty" },
+        el("span", { class: "drawer__empty-icon", text: "🛒" }),
+        el("p", { text: "Корзина пуста" }),
+        el("span", {
+          class: "drawer__empty-hint",
+          text: "Добавьте товары из каталога",
+        }),
+      ),
+    );
+  };
+
+  const renderLine = (line: CartLine) => {
+    const row = el(
+      "div",
+      { class: "cart-line" },
+      el("img", { class: "cart-line__img", src: line.product.imageUrl, alt: "" }),
+      el(
+        "div",
+        { class: "cart-line__info" },
+        el("h3", { class: "cart-line__title", text: line.product.title }),
+        el("span", { class: "cart-line__price", text: formatPrice(line.product.price) }),
+        el(
+          "div",
+          { class: "cart-line__qty" },
+          el("button", {
+            type: "button",
+            class: "cart-line__btn",
+            "data-dec": "",
+            "aria-label": "Уменьшить",
+            text: "−",
+          }),
+          el("span", { class: "cart-line__count", text: String(line.qty) }),
+          el("button", {
+            type: "button",
+            class: "cart-line__btn",
+            "data-inc": "",
+            "aria-label": "Увеличить",
+            text: "+",
+          }),
+        ),
+      ),
+      el(
+        "div",
+        { class: "cart-line__side" },
+        el("button", {
+          type: "button",
+          class: "cart-line__remove",
+          "data-remove": "",
+          "aria-label": "Удалить",
+          text: "✕",
+        }),
+        el("span", {
+          class: "cart-line__sum",
+          text: formatPrice(line.product.price * line.qty),
+        }),
+      ),
+    );
+
+    row
+      .querySelector<HTMLButtonElement>("[data-dec]")
+      ?.addEventListener("click", () => cart.dec(line.product.id));
+    row
+      .querySelector<HTMLButtonElement>("[data-inc]")
+      ?.addEventListener("click", () => cart.inc(line.product.id));
+    row
+      .querySelector<HTMLButtonElement>("[data-remove]")
+      ?.addEventListener("click", () => cart.remove(line.product.id));
+
+    return row;
+  };
+
   const renderLines = () => {
     const lines = cart.lines();
+    body.replaceChildren();
 
     if (lines.length === 0) {
-      body.innerHTML = `
-        <div class="drawer__empty">
-          <span class="drawer__empty-icon">🛒</span>
-          <p>Корзина пуста</p>
-          <span class="drawer__empty-hint">Добавьте товары из каталога</span>
-        </div>
-      `;
+      renderEmpty();
     } else {
-      body.innerHTML = "";
       for (const line of lines) {
-        const row = document.createElement("div");
-        row.className = "cart-line";
-        row.innerHTML = `
-          <img class="cart-line__img" src="${line.product.imageUrl}" alt="" />
-          <div class="cart-line__info">
-            <h3 class="cart-line__title">${line.product.title}</h3>
-            <span class="cart-line__price">${formatPrice(
-              line.product.price,
-            )}</span>
-            <div class="cart-line__qty">
-              <button type="button" class="cart-line__btn" data-dec aria-label="Уменьшить">−</button>
-              <span class="cart-line__count">${line.qty}</span>
-              <button type="button" class="cart-line__btn" data-inc aria-label="Увеличить">+</button>
-            </div>
-          </div>
-          <div class="cart-line__side">
-            <button type="button" class="cart-line__remove" data-remove aria-label="Удалить">✕</button>
-            <span class="cart-line__sum">${formatPrice(
-              line.product.price * line.qty,
-            )}</span>
-          </div>
-        `;
-
-        row
-          .querySelector<HTMLButtonElement>("[data-dec]")
-          ?.addEventListener("click", () => cart.dec(line.product.id));
-        row
-          .querySelector<HTMLButtonElement>("[data-inc]")
-          ?.addEventListener("click", () => cart.inc(line.product.id));
-        row
-          .querySelector<HTMLButtonElement>("[data-remove]")
-          ?.addEventListener("click", () => cart.remove(line.product.id));
-
-        body.appendChild(row);
+        body.appendChild(renderLine(line));
       }
     }
 
@@ -100,22 +146,23 @@ export function createCartDrawer({
 
   const renderFooter = () => {
     const empty = cart.lines().length === 0;
-    footer.innerHTML = `
-      <div class="drawer__summary">
-        <span class="drawer__summary-label">Итого</span>
-        <span class="drawer__summary-total">${formatPrice(cart.total())}</span>
-      </div>
-      <div class="drawer__checkout"></div>
-    `;
+    const checkoutSlot = el("div", { class: "drawer__checkout" });
 
-    if (empty) return;
-
-    footer.querySelector(".drawer__checkout")?.appendChild(
-      Button({
-        label: "Оформить заказ",
-        onClick: () => onCheckout?.(),
-      }),
+    footer.replaceChildren(
+      el(
+        "div",
+        { class: "drawer__summary" },
+        el("span", { class: "drawer__summary-label", text: "Итого" }),
+        el("span", { class: "drawer__summary-total", text: formatPrice(cart.total()) }),
+      ),
+      checkoutSlot,
     );
+
+    if (!empty) {
+      checkoutSlot.appendChild(
+        Button({ label: "Оформить заказ", onClick: () => onCheckout?.() }),
+      );
+    }
   };
 
   cart.subscribe(renderLines);
@@ -125,7 +172,7 @@ export function createCartDrawer({
     lastFocused = document.activeElement as HTMLElement | null;
     overlay.hidden = false;
     document.body.classList.add("drawer-open");
-    $<HTMLButtonElement>(".drawer__close").focus();
+    closeButton.focus();
   };
 
   const close = () => {

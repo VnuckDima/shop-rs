@@ -1,3 +1,4 @@
+import { el } from "@shared/lib/dom";
 import "./ui/Brands.css";
 
 const BRANDS = [
@@ -12,20 +13,22 @@ const BRANDS = [
 ];
 
 export function Brands(): HTMLElement {
-  const section = document.createElement("section");
-  section.id = "brands";
-  section.className = "brands";
+  const grid = el(
+    "div",
+    { class: "brands__grid" },
+    ...BRANDS.map((brand) =>
+      el("span", { class: "brands__item", text: brand }),
+    ),
+  );
 
-  section.innerHTML = `
-    <div class="brands__inner container">
-      <h2 class="brands__title">Популярные бренды</h2>
-      <div class="brands__grid">
-        ${BRANDS.map((brand) => `<span class="brands__item">${brand}</span>`).join(
-          "",
-        )}
-      </div>
-    </div>
-  `;
-
-  return section;
+  return el(
+    "section",
+    { class: "brands", id: "brands" },
+    el(
+      "div",
+      { class: "brands__inner container" },
+      el("h2", { class: "brands__title", text: "Популярные бренды" }),
+      grid,
+    ),
+  );
 }

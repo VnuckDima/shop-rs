@@ -2,6 +2,7 @@ import type { CartApi } from "@features/cart";
 import type { Product } from "@shared/lib/product";
 import { formatPrice } from "@shared/lib/product";
 import { Button } from "@shared/ui/Button";
+import { el } from "@shared/lib/dom";
 import "./ui/ProductModal.css";
 
 export type ProductModalApi = {
@@ -25,45 +26,53 @@ export function createProductModal({
   onAddToCart,
   cart,
 }: ProductModalOptions = {}): ProductModalApi {
-  const overlay = document.createElement("div");
-  overlay.className = "modal";
-  overlay.hidden = true;
+  const overlay = el("div", { class: "modal", hidden: "" });
 
-  overlay.innerHTML = `
-    <div class="modal__backdrop" data-close></div>
-    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button type="button" class="modal__close" data-close aria-label="Закрыть">✕</button>
-      <div class="modal__media">
-        <img class="modal__image" alt="" />
-        <span class="modal__badge" hidden></span>
-      </div>
-      <div class="modal__content">
-        <span class="modal__category"></span>
-        <h2 class="modal__title" id="modal-title"></h2>
-        <div class="modal__rating"></div>
-        <p class="modal__description"></p>
-        <h3 class="modal__specs-title">Характеристики</h3>
-        <ul class="modal__specs"></ul>
-        <div class="modal__prices"></div>
-        <div class="modal__actions">
-          <div class="modal__add"></div>
-        </div>
-      </div>
-    </div>
-  `;
+  const backdrop = el("div", { class: "modal__backdrop", "data-close": "" });
+  const closeButton = el("button", {
+    type: "button",
+    class: "modal__close",
+    "data-close": "",
+    "aria-label": "Закрыть",
+    text: "✕",
+  });
 
-  const $ = <T extends HTMLElement>(sel: string): T =>
-    overlay.querySelector<T>(sel)!;
+  const image = el("img", { class: "modal__image", alt: "" });
+  const badge = el("span", { class: "modal__badge", hidden: "" });
 
-  const image = $<HTMLImageElement>(".modal__image");
-  const badge = $(".modal__badge");
-  const category = $(".modal__category");
-  const title = $(".modal__title");
-  const rating = $(".modal__rating");
-  const description = $(".modal__description");
-  const specs = $<HTMLUListElement>(".modal__specs");
-  const prices = $(".modal__prices");
-  const addSlot = $(".modal__add");
+  const category = el("span", { class: "modal__category" });
+  const title = el("h2", { class: "modal__title", id: "modal-title" });
+  const rating = el("div", { class: "modal__rating" });
+  const description = el("p", { class: "modal__description" });
+  const specs = el("ul", { class: "modal__specs" });
+  const prices = el("div", { class: "modal__prices" });
+  const addSlot = el("div", { class: "modal__add" });
+
+  const dialog = el(
+    "div",
+    {
+      class: "modal__dialog",
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-labelledby": "modal-title",
+    },
+    closeButton,
+    el("div", { class: "modal__media" }, image, badge),
+    el(
+      "div",
+      { class: "modal__content" },
+      category,
+      title,
+      rating,
+      description,
+      el("h3", { class: "modal__specs-title", text: "Характеристики" }),
+      specs,
+      prices,
+      el("div", { class: "modal__actions" }, addSlot),
+    ),
+  );
+
+  overlay.append(backdrop, dialog);
 
   let lastFocused: HTMLElement | null = null;
   let currentProduct: Product | null = null;
@@ -94,36 +103,38 @@ export function createProductModal({
 
     const productId = currentProduct.id;
 
-    const group = document.createElement("div");
-    group.className = "modal__qty";
+    const group = el(
+      "div",
+      { class: "modal__qty" },
+      el("button", {
+        type: "button",
+        class: "modal__qty-btn",
+        "aria-label": "Уменьшить количество",
+        text: "−",
+      }),
+      el("span", { class: "modal__qty-count", text: String(qty) }),
+      el("button", {
+        type: "button",
+        class: "modal__qty-btn",
+        "aria-label": "Увеличить количество",
+        text: "+",
+      }),
+    );
 
-    const minus = document.createElement("button");
-    minus.type = "button";
-    minus.className = "modal__qty-btn";
-    minus.setAttribute("aria-label", "Уменьшить количество");
-    minus.textContent = "−";
-    minus.addEventListener("click", () => cart?.dec(productId));
+    const [minusBtn, plusBtn] = group.querySelectorAll<HTMLButtonElement>(
+      ".modal__qty-btn",
+    );
+    minusBtn?.addEventListener("click", () => cart?.dec(productId));
+    plusBtn?.addEventListener("click", () => cart?.inc(productId));
 
-    const count = document.createElement("span");
-    count.className = "modal__qty-count";
-    count.textContent = String(qty);
-
-    const plus = document.createElement("button");
-    plus.type = "button";
-    plus.className = "modal__qty-btn";
-    plus.setAttribute("aria-label", "Увеличить количество");
-    plus.textContent = "+";
-    plus.addEventListener("click", () => cart?.inc(productId));
-
-    group.append(minus, count, plus);
-
-    const remove = Button({
-      label: "Удалить",
-      variant: "ghost",
-      onClick: () => cart?.remove(productId),
-    });
-
-    addSlot.append(group, remove);
+    addSlot.append(
+      group,
+      Button({
+        label: "Удалить",
+        variant: "ghost",
+        onClick: () => cart?.remove(productId),
+      }),
+    );
   };
 
   if (cart) cart.subscribe(renderAddControls);
@@ -135,7 +146,7 @@ export function createProductModal({
     lastFocused?.focus();
   };
 
-  overlay
+  dialog
     .querySelector(".modal__actions")
     ?.appendChild(
       Button({
@@ -156,9 +167,14 @@ export function createProductModal({
     image.alt = product.title;
     category.textContent = product.category;
     title.textContent = product.title;
-    rating.innerHTML = `<span class="modal__star">★</span> ${product.rating.toFixed(
-      1,
-    )} <span class="modal__muted">· рейтинг покупателей</span>`;
+    rating.replaceChildren(
+      el("span", { class: "modal__star", text: "★" }),
+      ` ${product.rating.toFixed(1)} `,
+      el("span", {
+        class: "modal__muted",
+        text: "· рейтинг покупателей",
+      }),
+    );
     description.textContent =
       product.description ?? "Подробное описание скоро появится.";
 
@@ -169,33 +185,43 @@ export function createProductModal({
     }
 
     specs.replaceChildren(
-      ...(product.specs ?? []).map((spec) => {
-        const li = document.createElement("li");
-        li.className = "modal__spec";
-        li.innerHTML = `<span class="modal__spec-label">${spec.label}</span><span class="modal__spec-value">${spec.value}</span>`;
-        return li;
-      }),
+      ...(product.specs ?? []).map((spec) =>
+        el(
+          "li",
+          { class: "modal__spec" },
+          el("span", { class: "modal__spec-label", text: spec.label }),
+          el("span", { class: "modal__spec-value", text: spec.value }),
+        ),
+      ),
     );
 
     const discount = product.oldPrice
       ? Math.round((1 - product.price / product.oldPrice) * 100)
       : 0;
 
-    prices.innerHTML = `
-      <span class="modal__price">${formatPrice(product.price)}</span>
-      ${
-        product.oldPrice
-          ? `<span class="modal__oldprice">${formatPrice(product.oldPrice)}</span>`
-          : ""
-      }
-      ${discount ? `<span class="modal__discount">−${discount}%</span>` : ""}
-    `;
+    const priceChildren: (Node | string)[] = [
+      el("span", { class: "modal__price", text: formatPrice(product.price) }),
+    ];
+    if (product.oldPrice) {
+      priceChildren.push(
+        el("span", {
+          class: "modal__oldprice",
+          text: formatPrice(product.oldPrice),
+        }),
+      );
+    }
+    if (discount) {
+      priceChildren.push(
+        el("span", { class: "modal__discount", text: `−${discount}%` }),
+      );
+    }
+    prices.replaceChildren(...priceChildren);
 
     renderAddControls();
 
     overlay.hidden = false;
     document.body.classList.add("modal-open");
-    $<HTMLButtonElement>(".modal__close").focus();
+    closeButton.focus();
   };
 
   overlay.addEventListener("click", (event) => {

@@ -1,4 +1,5 @@
 import { Button } from "@shared/ui/Button";
+import { el } from "@shared/lib/dom";
 import "./ui/Hero.css";
 
 export type HeroSlide = {
@@ -36,29 +37,39 @@ export function Hero({ slides, interval = 6000 }: HeroProps): HTMLElement {
   const dotEls: HTMLButtonElement[] = [];
 
   slides.forEach((slide, index) => {
-    const el = document.createElement("article");
-    el.className = `hero__slide${index === 0 ? " is-active" : ""}`;
-    el.innerHTML = `
-      <div class="hero__content">
-        ${slide.eyebrow ? `<span class="hero__eyebrow">${slide.eyebrow}</span>` : ""}
-        <h1 class="hero__title">${slide.title}</h1>
-        <p class="hero__subtitle">${slide.subtitle}</p>
-        <div class="hero__cta"></div>
-      </div>
-      <div class="hero__media">
-        <img src="${slide.image}" alt="${slide.alt ?? ""}" />
-        <div class="hero__glow"></div>
-      </div>
-    `;
+    const content = el(
+      "div",
+      { class: "hero__content" },
+      slide.eyebrow
+        ? el("span", { class: "hero__eyebrow", text: slide.eyebrow })
+        : "",
+      el("h1", { class: "hero__title", text: slide.title }),
+      el("p", { class: "hero__subtitle", text: slide.subtitle }),
+      el("div", { class: "hero__cta" }),
+    );
 
     if (slide.ctaLabel) {
-      el.querySelector(".hero__cta")?.appendChild(
-        Button({ label: slide.ctaLabel, onClick: slide.onCtaClick }),
-      );
+      content
+        .querySelector(".hero__cta")
+        ?.appendChild(
+          Button({ label: slide.ctaLabel, onClick: slide.onCtaClick }),
+        );
     }
 
-    slideEls.push(el);
-    slidesEl.appendChild(el);
+    const slideEl = el(
+      "article",
+      { class: `hero__slide${index === 0 ? " is-active" : ""}` },
+      content,
+      el(
+        "div",
+        { class: "hero__media" },
+        el("img", { src: slide.image, alt: slide.alt ?? "" }),
+        el("div", { class: "hero__glow" }),
+      ),
+    );
+
+    slideEls.push(slideEl);
+    slidesEl.appendChild(slideEl);
 
     const dot = document.createElement("button");
     dot.type = "button";

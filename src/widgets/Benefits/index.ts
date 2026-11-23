@@ -1,3 +1,4 @@
+import { el } from "@shared/lib/dom";
 import "./ui/Benefits.css";
 
 type Benefit = {
@@ -30,24 +31,28 @@ const BENEFITS: Benefit[] = [
 ];
 
 export function Benefits(): HTMLElement {
-  const section = document.createElement("section");
-  section.className = "benefits";
+  const grid = el(
+    "div",
+    { class: "benefits__grid" },
+    ...BENEFITS.map((item) =>
+      el(
+        "article",
+        { class: "benefit" },
+        el("span", { class: "benefit__icon", text: item.icon }),
+        el("h3", { class: "benefit__title", text: item.title }),
+        el("p", { class: "benefit__text", text: item.text }),
+      ),
+    ),
+  );
 
-  section.innerHTML = `
-    <div class="benefits__inner container">
-      <h2 class="benefits__title">Почему выбирают нас</h2>
-      <div class="benefits__grid">
-        ${BENEFITS.map(
-          (item) => `
-          <article class="benefit">
-            <span class="benefit__icon">${item.icon}</span>
-            <h3 class="benefit__title">${item.title}</h3>
-            <p class="benefit__text">${item.text}</p>
-          </article>`,
-        ).join("")}
-      </div>
-    </div>
-  `;
-
-  return section;
+  return el(
+    "section",
+    { class: "benefits" },
+    el(
+      "div",
+      { class: "benefits__inner container" },
+      el("h2", { class: "benefits__title", text: "Почему выбирают нас" }),
+      grid,
+    ),
+  );
 }

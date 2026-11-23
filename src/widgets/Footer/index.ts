@@ -1,48 +1,64 @@
+import { el } from "@shared/lib/dom";
 import "./ui/Footer.css";
 
+const CATALOG = ["Смартфоны", "Ноутбуки", "Аудио", "Аксессуары"];
+const BUYERS = ["Доставка", "Оплата", "Возврат", "Гарантия"];
+
+function linkColumn(title: string, links: string[]): HTMLElement {
+  return el(
+    "div",
+    { class: "footer__col" },
+    el("h4", { class: "footer__title", text: title }),
+    ...links.map((label) => el("a", { class: "footer__link", href: "#", text: label })),
+  );
+}
+
 export function Footer(): HTMLElement {
-  const footer = document.createElement("footer");
-  footer.className = "footer";
+  const brandCol = el(
+    "div",
+    { class: "footer__col footer__brand" },
+    el(
+      "a",
+      { class: "footer__logo", href: "#" },
+      el("span", { text: "◈" }),
+      " Shop-RS",
+    ),
+    el("p", {
+      class: "footer__text",
+      text: "Современный магазин электроники. Доставка по всей стране.",
+    }),
+    el(
+      "div",
+      { class: "footer__socials" },
+      el("a", { class: "footer__social", href: "#", "aria-label": "Telegram", text: "TG" }),
+      el("a", { class: "footer__social", href: "#", "aria-label": "VK", text: "VK" }),
+      el("a", { class: "footer__social", href: "#", "aria-label": "YouTube", text: "YT" }),
+    ),
+  );
 
-  footer.innerHTML = `
-    <div class="footer__inner container">
-      <div class="footer__col footer__brand">
-        <a class="footer__logo" href="#"><span>◈</span> Shop-RS</a>
-        <p class="footer__text">Современный магазин электроники. Доставка по всей стране.</p>
-        <div class="footer__socials">
-          <a class="footer__social" href="#" aria-label="Telegram">TG</a>
-          <a class="footer__social" href="#" aria-label="VK">VK</a>
-          <a class="footer__social" href="#" aria-label="YouTube">YT</a>
-        </div>
-      </div>
+  const contactsCol = el(
+    "div",
+    { class: "footer__col" },
+    el("h4", { class: "footer__title", text: "Контакты" }),
+    el("a", { class: "footer__link", href: "tel:+78000000000", text: "8 (800) 000-00-00" }),
+    el("a", { class: "footer__link", href: "mailto:shop@example.com", text: "shop@example.com" }),
+    el("p", { class: "footer__text", text: "Ежедневно 9:00–21:00" }),
+  );
 
-      <div class="footer__col">
-        <h4 class="footer__title">Каталог</h4>
-        <a class="footer__link" href="#">Смартфоны</a>
-        <a class="footer__link" href="#">Ноутбуки</a>
-        <a class="footer__link" href="#">Аудио</a>
-        <a class="footer__link" href="#">Аксессуары</a>
-      </div>
+  const inner = el(
+    "div",
+    { class: "footer__inner container" },
+    brandCol,
+    linkColumn("Каталог", CATALOG),
+    linkColumn("Покупателям", BUYERS),
+    contactsCol,
+  );
 
-      <div class="footer__col">
-        <h4 class="footer__title">Покупателям</h4>
-        <a class="footer__link" href="#">Доставка</a>
-        <a class="footer__link" href="#">Оплата</a>
-        <a class="footer__link" href="#">Возврат</a>
-        <a class="footer__link" href="#">Гарантия</a>
-      </div>
+  const bottom = el(
+    "div",
+    { class: "footer__bottom container" },
+    el("span", { text: "© 2026 Shop-RS. Все права защищены." }),
+  );
 
-      <div class="footer__col">
-        <h4 class="footer__title">Контакты</h4>
-        <a class="footer__link" href="tel:+78000000000">8 (800) 000-00-00</a>
-        <a class="footer__link" href="mailto:shop@example.com">shop@example.com</a>
-        <p class="footer__text">Ежедневно 9:00–21:00</p>
-      </div>
-    </div>
-    <div class="footer__bottom container">
-      <span>© 2026 Shop-RS. Все права защищены.</span>
-    </div>
-  `;
-
-  return footer;
+  return el("footer", { class: "footer" }, inner, bottom);
 }

@@ -1,4 +1,5 @@
 import { Button } from "@shared/ui/Button";
+import { el } from "@shared/lib/dom";
 import "./ui/PromoBanner.css";
 
 export type PromoBannerProps = {
@@ -14,25 +15,28 @@ export function PromoBanner({
   ctaLabel = "Выбрать товар",
   onCtaClick,
 }: PromoBannerProps): HTMLElement {
-  const banner = document.createElement("section");
-  banner.className = "promo";
-
-  banner.innerHTML = `
-    <div class="promo__inner container">
-      <div class="promo__content">
-        <h2 class="promo__title">${title}</h2>
-        <p class="promo__subtitle">${subtitle}</p>
-        <div class="promo__cta"></div>
-      </div>
-      <div class="promo__aside" aria-hidden="true">
-        <span class="promo__big">%</span>
-      </div>
-    </div>
-  `;
-
-  banner.querySelector(".promo__cta")?.appendChild(
+  const cta = el("div", { class: "promo__cta" });
+  cta.appendChild(
     Button({ label: ctaLabel, onClick: onCtaClick }),
   );
 
-  return banner;
+  const content = el(
+    "div",
+    { class: "promo__content" },
+    el("h2", { class: "promo__title", text: title }),
+    el("p", { class: "promo__subtitle", text: subtitle }),
+    cta,
+  );
+
+  const aside = el(
+    "div",
+    { class: "promo__aside", "aria-hidden": "true" },
+    el("span", { class: "promo__big", text: "%" }),
+  );
+
+  return el(
+    "section",
+    { class: "promo" },
+    el("div", { class: "promo__inner container" }, content, aside),
+  );
 }

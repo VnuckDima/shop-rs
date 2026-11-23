@@ -7,6 +7,7 @@ import { Brands } from "@widgets/Brands";
 import { Benefits } from "@widgets/Benefits";
 import { Footer } from "@widgets/Footer";
 import { formatPrice } from "@shared/lib/product";
+import { el } from "@shared/lib/dom";
 import "./ui/HomePage.css";
 
 export type HomePageProps = {
@@ -86,14 +87,24 @@ export function HomePage({
   catalog.id = "catalog";
   catalog.className = "home__catalog container";
 
-  const heading = document.createElement("div");
-  heading.className = "home__heading";
-  heading.innerHTML = `
-    <h2 class="home__heading-title" data-heading-title>Каталог товаров</h2>
-    <p class="home__heading-total">В корзине: <strong data-cart-total>${formatPrice(
-      total,
-    )}</strong> · <span data-cart-count-inline>0</span> шт.</p>
-  `;
+  const heading = el(
+    "div",
+    { class: "home__heading" },
+    el("h2", {
+      class: "home__heading-title",
+      "data-heading-title": "",
+      text: "Каталог товаров",
+    }),
+    el(
+      "p",
+      { class: "home__heading-total" },
+      "В корзине: ",
+      el("strong", { "data-cart-total": "", text: formatPrice(total) }),
+      " · ",
+      el("span", { "data-cart-count-inline": "", text: "0" }),
+      " шт.",
+    ),
+  );
 
   const categoryNav = CategoryNav({
     categories,

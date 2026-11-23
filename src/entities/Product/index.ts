@@ -1,6 +1,7 @@
 import type { Product } from "@shared/lib/product";
 import { formatPrice } from "@shared/lib/product";
 import { Button } from "@shared/ui/Button";
+import { el } from "@shared/lib/dom";
 import "./ui/ProductCard.css";
 
 export type { Product };
@@ -20,63 +21,78 @@ export function ProductCard(
   product: Product,
   handlers: ProductCardHandlers = {},
 ): HTMLElement {
-  const card = document.createElement("article");
-  card.className = "product-card";
+  const card = el("article", { class: "product-card" });
 
   const discount = product.oldPrice
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : 0;
 
-  card.innerHTML = `
-    <div class="product-card__media" data-open>
-      <img class="product-card__image" src="${product.imageUrl}" alt="${product.title}" loading="lazy" />
-      ${
-        product.badge
-          ? `<span class="product-card__badge product-card__badge--${product.badge}">${
-              BADGE_LABEL[product.badge]
-            }</span>`
-          : ""
-      }
-    </div>
-    <div class="product-card__body">
-      <span class="product-card__category">${product.category}</span>
-      <h3 class="product-card__title" data-open>${product.title}</h3>
-      <div class="product-card__rating" aria-label="Рейтинг ${product.rating}">
-        <span class="product-card__star">★</span> ${product.rating.toFixed(1)}
-      </div>
-      <div class="product-card__prices">
-        <span class="product-card__price">${formatPrice(product.price)}</span>
-        ${
-          product.oldPrice
-            ? `<span class="product-card__oldprice">${formatPrice(
-                product.oldPrice,
-              )}</span>`
-            : ""
-        }
-        ${discount ? `<span class="product-card__discount">−${discount}%</span>` : ""}
-      </div>
-    </div>
-    <div class="product-card__footer"></div>
-  `;
+  const media = el(
+    "div",
+    { class: "product-card__media", "data-open": "" },
+    el("img", {
+      class: "product-card__image",
+      src: product.imageUrl,
+      alt: product.title,
+      loading: "lazy",
+    }),
+    product.badge
+      ? el("span", {
+          class: `product-card__badge product-card__badge--${product.badge}`,
+          text: BADGE_LABEL[product.badge],
+        })
+      : "",
+  );
+
+  const prices = el(
+    "div",
+    { class: "product-card__prices" },
+    el("span", { class: "product-card__price", text: formatPrice(product.price) }),
+    product.oldPrice
+      ? el("span", {
+          class: "product-card__oldprice",
+          text: formatPrice(product.oldPrice),
+        })
+      : "",
+    discount
+      ? el("span", { class: "product-card__discount", text: `−${discount}%` })
+      : "",
+  );
+
+  const body = el(
+    "div",
+    { class: "product-card__body" },
+    el("span", { class: "product-card__category", text: product.category }),
+    el("h3", { class: "product-card__title", "data-open": "", text: product.title }),
+    el(
+      "div",
+      { class: "product-card__rating", "aria-label": `Рейтинг ${product.rating}` },
+      el("span", { class: "product-card__star", text: "★" }),
+      ` ${product.rating.toFixed(1)}`,
+    ),
+    prices,
+  );
+
+  const footer = el(
+    "div",
+    { class: "product-card__footer" },
+    Button({
+      label: "Подробнее",
+      variant: "ghost",
+      onClick: () => handlers.onOpen?.(product),
+    }),
+    Button({
+      label: "В корзину",
+      onClick: () => handlers.onAddToCart?.(product),
+    }),
+  );
+
+  card.append(media, body, footer);
 
   card
     .querySelectorAll<HTMLElement>("[data-open]")
-    .forEach((el) =>
-      el.addEventListener("click", () => handlers.onOpen?.(product)),
-    );
-
-  card
-    .querySelector(".product-card__footer")
-    ?.append(
-      Button({
-        label: "Подробнее",
-        variant: "ghost",
-        onClick: () => handlers.onOpen?.(product),
-      }),
-      Button({
-        label: "В корзину",
-        onClick: () => handlers.onAddToCart?.(product),
-      }),
+    .forEach((node) =>
+      node.addEventListener("click", () => handlers.onOpen?.(product)),
     );
 
   return card;
