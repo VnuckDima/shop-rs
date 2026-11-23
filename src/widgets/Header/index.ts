@@ -1,15 +1,26 @@
 import "./ui/Header.css";
 
+export type NavKey = "catalog" | "new" | "sale" | "brands";
+
 export type HeaderProps = {
   cartCount: number;
   onSearch?: (query: string) => void;
   onCartClick?: () => void;
+  onNav?: (key: NavKey) => void;
 };
+
+const NAV_LINKS: { key: NavKey; label: string }[] = [
+  { key: "catalog", label: "Каталог" },
+  { key: "new", label: "Новинки" },
+  { key: "sale", label: "Скидки" },
+  { key: "brands", label: "Бренды" },
+];
 
 export function Header({
   cartCount,
   onSearch,
   onCartClick,
+  onNav,
 }: HeaderProps): HTMLElement {
   const header = document.createElement("header");
   header.className = "header";
@@ -21,10 +32,12 @@ export function Header({
       </a>
 
       <nav class="header__nav" aria-label="Основная навигация">
-        <a class="header__link header__link--active" href="#">Каталог</a>
-        <a class="header__link" href="#">Новинки</a>
-        <a class="header__link" href="#">Скидки</a>
-        <a class="header__link" href="#">Бренды</a>
+        ${NAV_LINKS.map(
+          (link, index) =>
+            `<a class="header__link${
+              index === 0 ? " header__link--active" : ""
+            }" href="#" data-nav="${link.key}">${link.label}</a>`,
+        ).join("")}
       </nav>
 
       <div class="header__actions">
@@ -44,6 +57,26 @@ export function Header({
       </div>
     </div>
   `;
+
+  const setActive = (key: NavKey) => {
+    header
+      .querySelectorAll<HTMLAnchorElement>(".header__link")
+      .forEach((link) => {
+        link.classList.toggle(
+          "header__link--active",
+          link.dataset.nav === key,
+        );
+      });
+  };
+
+  header.querySelectorAll<HTMLAnchorElement>("[data-nav]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const key = link.dataset.nav as NavKey;
+      setActive(key);
+      onNav?.(key);
+    });
+  });
 
   const input = header.querySelector<HTMLInputElement>(
     ".header__search-input",

@@ -27,6 +27,23 @@ function bootstrap(root: HTMLElement): void {
     cartCount: cart.count(),
     onSearch: (query) => page.setQuery(query),
     onCartClick: () => drawer.toggle(),
+    onNav: (key) => {
+      const scrollTo = (selector: string) =>
+        document.querySelector(selector)?.scrollIntoView({ behavior: "smooth" });
+
+      if (key === "catalog") {
+        page.setCategory("Все");
+        scrollTo("#catalog");
+      } else if (key === "new") {
+        page.setTag("new");
+        scrollTo("#catalog");
+      } else if (key === "sale") {
+        page.setTag("sale");
+        scrollTo("#catalog");
+      } else {
+        scrollTo("#brands");
+      }
+    },
   });
 
   const page = HomePage({

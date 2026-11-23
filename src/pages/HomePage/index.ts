@@ -3,6 +3,7 @@ import { Hero } from "@widgets/Hero";
 import { CategoryNav, updateActiveCategory } from "@widgets/CategoryNav";
 import { ProductList } from "@widgets/ProductList";
 import { PromoBanner } from "@widgets/PromoBanner";
+import { Brands } from "@widgets/Brands";
 import { Benefits } from "@widgets/Benefits";
 import { Footer } from "@widgets/Footer";
 import { formatPrice } from "@shared/lib/product";
@@ -20,6 +21,7 @@ export type HomePageController = {
   root: HTMLElement;
   setQuery: (query: string) => void;
   setCategory: (category: string) => void;
+  setTag: (tag: "new" | "sale" | null) => void;
   setCart: (total: number, count: number) => void;
 };
 
@@ -30,19 +32,54 @@ export function HomePage({
   onAddToCart,
   onOpen,
 }: HomePageProps): HomePageController {
-  const state = { query: "", category: categories[0] ?? "Все" };
+  const state = {
+    query: "",
+    category: categories[0] ?? "Все",
+    tag: null as "new" | "sale" | null,
+  };
 
   const page = document.createElement("div");
   page.className = "home";
 
+  const scrollToCatalog = () => {
+    document
+      .getElementById("catalog")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const hero = Hero({
-    title: "Техника, которая вдохновляет",
-    subtitle:
-      "Смартфоны, ноутбуки и аксессуары ведущих брендов. Выгодные цены, быстрая доставка и гарантия.",
-    ctaLabel: "Смотреть каталог",
-    onCtaClick: () => {
-      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
-    },
+    slides: [
+      {
+        eyebrow: "Новая коллекция 2026",
+        title: "Техника, которая вдохновляет",
+        subtitle:
+          "Смартфоны, ноутбуки и аксессуары ведущих брендов. Выгодные цены, быстрая доставка и гарантия.",
+        ctaLabel: "Смотреть каталог",
+        onCtaClick: scrollToCatalog,
+        image: "/img/hero.jpg",
+        alt: "Техника и электроника",
+      },
+      {
+        eyebrow: "Смартфоны",
+        title: "Новое поколение мобильных",
+        subtitle:
+          "Мощные камеры, яркие экраны и быстрая зарядка. Найдите свой идеальный смартфон.",
+        ctaLabel: "Выбрать смартфон",
+        onCtaClick: scrollToCatalog,
+        image: "/img/phone.jpg",
+        alt: "Смартфон",
+      },
+      {
+        eyebrow: "Для работы и учёбы",
+        title: "Ноутбуки на любой вкус",
+        subtitle:
+          "Лёгкие, мощные и стильные. Для работы, учёбы и игр — по выгодной цене.",
+        ctaLabel: "Смотреть ноутбуки",
+        onCtaClick: scrollToCatalog,
+        image: "/img/laptop.jpg",
+        alt: "Ноутбук",
+      },
+    ],
   });
 
   const catalog = document.createElement("section");
@@ -52,7 +89,7 @@ export function HomePage({
   const heading = document.createElement("div");
   heading.className = "home__heading";
   heading.innerHTML = `
-    <h2 class="home__heading-title">Каталог товаров</h2>
+    <h2 class="home__heading-title" data-heading-title>Каталог товаров</h2>
     <p class="home__heading-total">В корзине: <strong data-cart-total>${formatPrice(
       total,
     )}</strong> · <span data-cart-count-inline>0</span> шт.</p>
@@ -63,6 +100,7 @@ export function HomePage({
     active: state.category,
     onSelect: (category) => {
       state.category = category;
+      state.tag = null;
       updateActiveCategory(categoryNav, category);
       renderProducts();
     },
@@ -75,12 +113,26 @@ export function HomePage({
     const filtered = products.filter((product) => {
       const matchesCategory =
         state.category === "Все" || product.category === state.category;
+      const matchesTag =
+        state.tag === null || product.badge === state.tag;
       const matchesQuery =
         query === "" ||
         product.title.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query);
-      return matchesCategory && matchesQuery;
+      return matchesCategory && matchesTag && matchesQuery;
     });
+
+    const headingTitle = page.querySelector<HTMLElement>(
+      "[data-heading-title]",
+    );
+    if (headingTitle) {
+      headingTitle.textContent =
+        state.tag === "new"
+          ? "Новинки"
+          : state.tag === "sale"
+          ? "Скидки"
+          : "Каталог товаров";
+    }
 
     listHost.replaceChildren(
       ProductList({ products: filtered, onAddToCart, onOpen }),
@@ -98,7 +150,7 @@ export function HomePage({
         .getElementById("catalog")
         ?.scrollIntoView({ behavior: "smooth" });
     },
-  }), Benefits(), Footer());
+  }), Brands(), Benefits(), Footer());
 
   renderProducts();
 
@@ -118,7 +170,16 @@ export function HomePage({
     },
     setCategory(category) {
       state.category = category;
+      state.tag = null;
       updateActiveCategory(categoryNav, category);
+      renderProducts();
+    },
+    setTag(tag) {
+      state.tag = tag;
+      if (tag) {
+        state.category = categories[0] ?? "Все";
+        updateActiveCategory(categoryNav, state.category);
+      }
       renderProducts();
     },
     setCart,

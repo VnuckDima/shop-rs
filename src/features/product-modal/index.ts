@@ -52,12 +52,6 @@ export function createProductModal({
     </div>
   `;
 
-  overlay
-    .querySelector(".modal__actions")
-    ?.appendChild(
-      Button({ label: "Купить в 1 клик", variant: "ghost" }),
-    );
-
   const $ = <T extends HTMLElement>(sel: string): T =>
     overlay.querySelector<T>(sel)!;
 
@@ -82,22 +76,57 @@ export function createProductModal({
     );
   };
 
-  const updateAddButton = () => {
-    if (!addButton) return;
+  const renderAddControls = () => {
+    addSlot.replaceChildren();
     const qty = currentQty();
-    addButton.textContent = qty > 0 ? `В корзине: ${qty}` : "В корзину";
-    addButton.classList.toggle("btn--in-cart", qty > 0);
+
+    if (qty <= 0 || !cart || !currentProduct) {
+      addSlot.appendChild(
+        Button({
+          label: "В корзину",
+          onClick: () => {
+            if (currentProduct) onAddToCart?.(currentProduct);
+          },
+        }),
+      );
+      return;
+    }
+
+    const productId = currentProduct.id;
+
+    const group = document.createElement("div");
+    group.className = "modal__qty";
+
+    const minus = document.createElement("button");
+    minus.type = "button";
+    minus.className = "modal__qty-btn";
+    minus.setAttribute("aria-label", "Уменьшить количество");
+    minus.textContent = "−";
+    minus.addEventListener("click", () => cart?.dec(productId));
+
+    const count = document.createElement("span");
+    count.className = "modal__qty-count";
+    count.textContent = String(qty);
+
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.className = "modal__qty-btn";
+    plus.setAttribute("aria-label", "Увеличить количество");
+    plus.textContent = "+";
+    plus.addEventListener("click", () => cart?.inc(productId));
+
+    group.append(minus, count, plus);
+
+    const remove = Button({
+      label: "Удалить",
+      variant: "ghost",
+      onClick: () => cart?.remove(productId),
+    });
+
+    addSlot.append(group, remove);
   };
 
-  const addButton = Button({
-    label: "В корзину",
-    onClick: () => {
-      if (currentProduct) onAddToCart?.(currentProduct);
-    },
-  });
-  addSlot.appendChild(addButton);
-
-  if (cart) cart.subscribe(updateAddButton);
+  if (cart) cart.subscribe(renderAddControls);
 
   const close = () => {
     overlay.hidden = true;
@@ -105,6 +134,19 @@ export function createProductModal({
     currentProduct = null;
     lastFocused?.focus();
   };
+
+  overlay
+    .querySelector(".modal__actions")
+    ?.appendChild(
+      Button({
+        label: "Купить в 1 клик",
+        variant: "ghost",
+        onClick: () => {
+          if (currentProduct) onAddToCart?.(currentProduct);
+          close();
+        },
+      }),
+    );
 
   const open = (product: Product) => {
     lastFocused = document.activeElement as HTMLElement | null;
@@ -149,7 +191,7 @@ export function createProductModal({
       ${discount ? `<span class="modal__discount">−${discount}%</span>` : ""}
     `;
 
-    updateAddButton();
+    renderAddControls();
 
     overlay.hidden = false;
     document.body.classList.add("modal-open");
