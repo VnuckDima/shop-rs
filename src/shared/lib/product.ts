@@ -43,6 +43,11 @@ export function specValue(spec: ProductSpec): string {
   return getLocale() === "en" && spec.valueEn ? spec.valueEn : spec.value;
 }
 
+export const calcDiscount = (product: Product): number =>
+  product.oldPrice
+    ? Math.round((1 - product.price / product.oldPrice) * 100)
+    : 0;
+
 export const formatPrice = (value: number): string =>
   new Intl.NumberFormat(getLocale() === "en" ? "en-US" : "ru-RU", {
     style: "currency",

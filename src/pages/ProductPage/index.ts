@@ -1,11 +1,13 @@
+import { BADGE_LABEL_KEY } from "@shared/constants/product";
 import type { CartApi } from "@features/cart";
-import type { Product } from "@shared/lib/product";
 import {
+  calcDiscount,
   formatPrice,
   productDescription,
   productTitle,
   specLabel,
   specValue,
+  type Product,
 } from "@shared/lib/product";
 import { categoryLabel, t } from "@shared/lib/i18n";
 import { Button } from "@shared/ui/Button";
@@ -16,12 +18,6 @@ export type ProductPageProps = {
   product: Product;
   cart: CartApi;
   onBack?: () => void;
-};
-
-const BADGE_LABEL_KEY: Record<NonNullable<Product["badge"]>, string> = {
-  hit: "product.badge.hit",
-  new: "product.badge.new",
-  sale: "product.badge.sale",
 };
 
 export function ProductPage({
@@ -101,9 +97,7 @@ export function ProductPage({
   });
   renderControls();
 
-  const discount = product.oldPrice
-    ? Math.round((1 - product.price / product.oldPrice) * 100)
-    : 0;
+  const discount = calcDiscount(product);
 
   const prices = el(
     "div",

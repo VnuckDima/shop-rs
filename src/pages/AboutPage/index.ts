@@ -1,3 +1,4 @@
+import { ABOUT_FEATURES } from "@shared/constants/about";
 import { Button } from "@shared/ui/Button";
 import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
 import { ThemeToggle } from "@shared/ui/ThemeToggle";
@@ -17,20 +18,13 @@ export type AboutPageProps = {
   onStart?: () => void;
 };
 
-const FEATURES = [
-  "about.features.1",
-  "about.features.2",
-  "about.features.3",
-  "about.features.4",
-];
-
 export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
   const page = el("div", { class: "about" });
 
   const featuresList = el(
     "ul",
     { class: "about__features" },
-    ...FEATURES.map((feature) =>
+    ...ABOUT_FEATURES.map((feature) =>
       el("li", { class: "about__feature", text: t(feature) }),
     ),
   );

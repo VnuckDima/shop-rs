@@ -1,7 +1,7 @@
+import { STORAGE_KEYS } from "../constants/storage";
 import type { Product } from "./product";
 import { readJSON, writeJSON } from "./storage";
 
-const STORAGE_KEY = "shop-rs:products:v1";
 
 type StoredCatalog = {
   fingerprint: string;
@@ -24,7 +24,7 @@ function fingerprint(products: Product[]): string {
 }
 
 export function loadProducts(fallback: Product[]): Product[] {
-  const stored = readJSON<StoredCatalog | null>(STORAGE_KEY, null);
+  const stored = readJSON<StoredCatalog | null>(STORAGE_KEYS.products, null);
   const seed = fingerprint(fallback);
 
   if (
@@ -36,6 +36,6 @@ export function loadProducts(fallback: Product[]): Product[] {
     return stored.products;
   }
 
-  writeJSON(STORAGE_KEY, { fingerprint: seed, products: fallback });
+  writeJSON(STORAGE_KEYS.products, { fingerprint: seed, products: fallback });
   return fallback;
 }

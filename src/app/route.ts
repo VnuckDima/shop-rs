@@ -1,7 +1,6 @@
-import { BENEFITS, type BenefitKey } from "@shared/lib/benefits";
+import { STORAGE_KEYS } from "@shared/constants/storage";
+import { isBenefitKey, type BenefitKey } from "@shared/lib/benefits";
 import type { Product } from "@shared/lib/product";
-
-const STORAGE_KEY = "shop-rs:route";
 
 export type Route =
   | { name: "about" }
@@ -32,13 +31,6 @@ export function serializeRoute(route: Route): RouteDescriptor {
     return { name: "brand", brand: route.brand };
   }
   return { name: route.name };
-}
-
-function isBenefitKey(value: unknown): value is BenefitKey {
-  return (
-    typeof value === "string" &&
-    BENEFITS.some((benefit) => benefit.key === value)
-  );
 }
 
 export function deserializeRoute(
@@ -82,18 +74,19 @@ export function deserializeRoute(
 
 export function loadRoute(products: Product[]): Route | null {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(STORAGE_KEYS.route);
     if (!raw) return null;
     return deserializeRoute(JSON.parse(raw), products);
-  } catch {
+  } catch (err) {
+    console.warn("Failed to load route", err);
     return null;
   }
 }
 
 export function saveRoute(route: Route): void {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(serializeRoute(route)));
-  } catch {
-    // sessionStorage может быть недоступен
+    sessionStorage.setItem(STORAGE_KEYS.route, JSON.stringify(serializeRoute(route)));
+  } catch (err) {
+    console.warn("Failed to save route", err);
   }
 }

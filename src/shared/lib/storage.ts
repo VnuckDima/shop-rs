@@ -3,7 +3,8 @@ export function readJSON<T>(key: string, fallback: T): T {
     const raw = localStorage.getItem(key);
     if (raw === null) return fallback;
     return JSON.parse(raw) as T;
-  } catch {
+  } catch (err) {
+    console.warn("Failed to read JSON from storage", err);
     return fallback;
   }
 }
@@ -11,7 +12,7 @@ export function readJSON<T>(key: string, fallback: T): T {
 export function writeJSON(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // localStorage может быть недоступен
+  } catch (err) {
+    console.warn("Failed to write JSON to storage", err);
   }
 }

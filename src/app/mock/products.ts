@@ -1,14 +1,6 @@
 import type { Product } from "@entities/Product";
 import type { ProductSpec } from "@shared/lib/product";
 
-export const CATEGORIES = [
-  "Все",
-  "Смартфоны",
-  "Ноутбуки",
-  "Аудио",
-  "Аксессуары",
-] as const;
-
 const specsByCategory: Record<string, ProductSpec[]> = {
   Смартфоны: [
     {

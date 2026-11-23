@@ -1,10 +1,11 @@
+import { NAV_LINKS, type NavKey } from "@shared/constants/navigation";
 import { el } from "@shared/lib/dom";
 import { t } from "@shared/lib/i18n";
 import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
 import { ThemeToggle } from "@shared/ui/ThemeToggle";
 import "./ui/Header.css";
 
-export type NavKey = "catalog" | "new" | "sale" | "brands";
+export type { NavKey };
 
 export type HeaderProps = {
   cartCount: number;
@@ -13,13 +14,6 @@ export type HeaderProps = {
   onNav?: (key: NavKey) => void;
   onHome?: () => void;
 };
-
-const NAV_LINKS: { key: NavKey; labelKey: string }[] = [
-  { key: "catalog", labelKey: "header.nav.catalog" },
-  { key: "new", labelKey: "header.nav.new" },
-  { key: "sale", labelKey: "header.nav.sale" },
-  { key: "brands", labelKey: "header.nav.brands" },
-];
 
 export function Header({
   cartCount,

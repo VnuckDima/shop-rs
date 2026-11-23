@@ -47,6 +47,13 @@ export function createBenefitIcon(key: BenefitKey): SVGElement {
   return svgIcon(getBenefit(key).iconPaths);
 }
 
+export function isBenefitKey(value: unknown): value is BenefitKey {
+  return (
+    typeof value === "string" &&
+    BENEFITS.some((benefit) => benefit.key === value)
+  );
+}
+
 export function benefitTitle(key: BenefitKey): string {
   return t(`benefit.${key}.title`);
 }

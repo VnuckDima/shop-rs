@@ -1,8 +1,9 @@
+import { STORAGE_KEYS } from "../constants/storage";
+
 export type Locale = "ru" | "en";
 
 export const LOCALES: Locale[] = ["ru", "en"];
 
-const STORAGE_KEY = "shop-rs:locale";
 
 type Params = Record<string, string | number>;
 
@@ -347,9 +348,9 @@ export function setLocale(locale: Locale): void {
   if (locale === current) return;
   current = locale;
   try {
-    localStorage.setItem(STORAGE_KEY, locale);
-  } catch {
-    // localStorage может быть недоступен
+    localStorage.setItem(STORAGE_KEYS.locale, locale);
+  } catch (err) {
+    console.warn("Failed to save locale", err);
   }
   document.documentElement.lang = locale;
   listeners.forEach((listener) => listener(locale));
@@ -371,9 +372,9 @@ export function onLocaleChange(listener: (locale: Locale) => void): () => void {
 export function initI18n(): Locale {
   let saved: string | null = null;
   try {
-    saved = localStorage.getItem(STORAGE_KEY);
-  } catch {
-    // localStorage может быть недоступен
+    saved = localStorage.getItem(STORAGE_KEYS.locale);
+  } catch (err) {
+    console.warn("Failed to read locale", err);
   }
   current = saved === "en" || saved === "ru" ? saved : "ru";
   document.documentElement.lang = current;

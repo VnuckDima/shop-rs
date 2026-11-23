@@ -1,6 +1,6 @@
-export type Theme = "dark" | "light";
+import { STORAGE_KEYS } from "../constants/storage";
 
-const STORAGE_KEY = "shop-rs:theme";
+export type Theme = "dark" | "light";
 
 function prefersLight(): boolean {
   return (
@@ -11,10 +11,10 @@ function prefersLight(): boolean {
 
 export function getInitialTheme(): Theme {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEYS.theme);
     if (saved === "dark" || saved === "light") return saved;
-  } catch {
-    // localStorage может быть недоступен
+  } catch (err) {
+    console.warn("Failed to read theme", err);
   }
   return prefersLight() ? "light" : "dark";
 }
@@ -32,9 +32,9 @@ export function getTheme(): Theme {
 export function setTheme(theme: Theme): void {
   applyTheme(theme);
   try {
-    localStorage.setItem(STORAGE_KEY, theme);
-  } catch {
-    // localStorage может быть недоступен
+    localStorage.setItem(STORAGE_KEYS.theme, theme);
+  } catch (err) {
+    console.warn("Failed to save theme", err);
   }
 }
 

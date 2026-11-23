@@ -1,14 +1,7 @@
+import { FOOTER_BUYERS, FOOTER_CATALOG } from "@shared/constants/catalog";
 import { el } from "@shared/lib/dom";
 import { categoryLabel, t } from "@shared/lib/i18n";
 import "./ui/Footer.css";
-
-const CATALOG = ["Смартфоны", "Ноутбуки", "Аудио", "Аксессуары"];
-const BUYERS = [
-  "footer.link.delivery",
-  "footer.link.payment",
-  "footer.link.returns",
-  "footer.link.warranty",
-];
 
 function linkColumn(title: string, links: string[]): HTMLElement {
   return el(
@@ -76,8 +69,8 @@ export function Footer(): HTMLElement {
     "div",
     { class: "footer__inner container" },
     brandCol,
-    linkColumn(t("footer.catalog"), CATALOG.map(categoryLabel)),
-    linkColumn(t("footer.buyers"), BUYERS.map((key) => t(key))),
+    linkColumn(t("footer.catalog"), FOOTER_CATALOG.map(categoryLabel)),
+    linkColumn(t("footer.buyers"), FOOTER_BUYERS.map((key) => t(key))),
     contactsCol,
   );
 

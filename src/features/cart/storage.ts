@@ -1,8 +1,7 @@
 import type { Product } from "@entities/Product";
+import { STORAGE_KEYS } from "@shared/constants/storage";
 import { readJSON, writeJSON } from "@shared/lib/storage";
 import type { CartLine, CartStorage } from "./index";
-
-const STORAGE_KEY = "shop-rs:cart";
 
 type PersistedLine = {
   id: number;
@@ -14,7 +13,7 @@ export function createCartStorage(products: Product[]): CartStorage {
 
   return {
     load(): CartLine[] {
-      const raw = readJSON<PersistedLine[]>(STORAGE_KEY, []);
+      const raw = readJSON<PersistedLine[]>(STORAGE_KEYS.cart, []);
       if (!Array.isArray(raw)) return [];
 
       return raw.flatMap((line) => {
@@ -27,7 +26,7 @@ export function createCartStorage(products: Product[]): CartStorage {
 
     save(lines: CartLine[]): void {
       writeJSON(
-        STORAGE_KEY,
+        STORAGE_KEYS.cart,
         lines.map((line) => ({ id: line.product.id, qty: line.qty })),
       );
     },

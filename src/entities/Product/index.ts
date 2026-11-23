@@ -1,7 +1,9 @@
-import type { Product } from "@shared/lib/product";
+import { BADGE_LABEL_KEY } from "@shared/constants/product";
 import {
+  calcDiscount,
   formatPrice,
   productTitle,
+  type Product,
 } from "@shared/lib/product";
 import { categoryLabel, t } from "@shared/lib/i18n";
 import { Button } from "@shared/ui/Button";
@@ -9,12 +11,6 @@ import { el } from "@shared/lib/dom";
 import "./ui/ProductCard.css";
 
 export type { Product };
-
-const BADGE_LABEL_KEY: Record<NonNullable<Product["badge"]>, string> = {
-  hit: "product.badge.hit",
-  new: "product.badge.new",
-  sale: "product.badge.sale",
-};
 
 export type ProductCardHandlers = {
   onAddToCart?: (product: Product) => void;
@@ -27,9 +23,7 @@ export function ProductCard(
 ): HTMLElement {
   const card = el("article", { class: "product-card" });
 
-  const discount = product.oldPrice
-    ? Math.round((1 - product.price / product.oldPrice) * 100)
-    : 0;
+  const discount = calcDiscount(product);
 
   const media = el(
     "div",

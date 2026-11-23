@@ -1,17 +1,7 @@
+import { BRANDS } from "@shared/constants/catalog";
 import { el } from "@shared/lib/dom";
 import { t } from "@shared/lib/i18n";
 import "./ui/Brands.css";
-
-const BRANDS = [
-  "Apple",
-  "Samsung",
-  "Sony",
-  "Xiaomi",
-  "ASUS",
-  "Lenovo",
-  "JBL",
-  "Logitech",
-];
 
 export type BrandsProps = {
   onSelect?: (brand: string) => void;

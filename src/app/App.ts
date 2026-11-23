@@ -6,12 +6,14 @@ import { HomePage } from "@pages/HomePage";
 import { InfoPage } from "@pages/InfoPage";
 import { ProductPage } from "@pages/ProductPage";
 import { createCartDrawer } from "@widgets/CartDrawer";
-import { Header, updateCartCount, type NavKey } from "@widgets/Header";
+import { Header, updateCartCount } from "@widgets/Header";
+import { CATEGORIES } from "@shared/constants/catalog";
+import type { NavKey } from "@shared/constants/navigation";
 import type { Product } from "@shared/lib/product";
 import { onLocaleChange, t } from "@shared/lib/i18n";
 import { loadProducts } from "@shared/lib/catalog-storage";
 import { loadRoute, saveRoute, type Route } from "./route";
-import { MOCK_PRODUCTS, CATEGORIES } from "./mock/products";
+import { MOCK_PRODUCTS } from "./mock/products";
 import { TEAM } from "./mock/team";
 import "./styles/global.css";
 
@@ -33,6 +35,9 @@ function bootstrap(root: HTMLElement): void {
 
   let route: Route = loadRoute(products) ?? { name: "about" };
 
+  const backRoute = (): Route =>
+    route.name === "brand" ? route : { name: "home" };
+
   const scrollTo = (selector: string) =>
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth" });
 
@@ -46,8 +51,7 @@ function bootstrap(root: HTMLElement): void {
     onOpen: (product) => openProduct(product),
     onBrandSelect: (brand) => navigate({ name: "brand", brand }),
     onInfoSelect: (key) => {
-      const back: Route = route.name === "brand" ? route : { name: "home" };
-      navigate({ name: "info", key, back });
+      navigate({ name: "info", key, back: backRoute() });
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
   });
@@ -70,8 +74,7 @@ function bootstrap(root: HTMLElement): void {
   syncCart();
 
   function openProduct(product: Product): void {
-    const back: Route = route.name === "brand" ? route : { name: "home" };
-    navigate({ name: "product", product, back });
+    navigate({ name: "product", product, back: backRoute() });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
