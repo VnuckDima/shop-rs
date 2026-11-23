@@ -23,10 +23,6 @@
   cursor: pointer;
 }
 
-.product-card__title {
-  cursor: pointer;
-}
-
 .product-card__image {
   width: 100%;
   height: 100%;
@@ -84,6 +80,7 @@
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.3;
+  cursor: pointer;
 }
 
 .product-card__rating {

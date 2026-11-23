@@ -137,13 +137,13 @@
   border-radius: 999px;
 }
 
-@media (max-width: 960px) {
+@media (width <= 960px) {
   .header__nav {
     display: none;
   }
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .header__search-input {
     width: 40px;
     padding: 0 0.9rem;

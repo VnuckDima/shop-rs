@@ -213,7 +213,7 @@
   font-weight: 700;
 }
 
-@media (max-width: 860px) {
+@media (width <= 860px) {
   .product-page__layout {
     grid-template-columns: 1fr;
     gap: 2rem;
