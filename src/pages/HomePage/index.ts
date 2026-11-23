@@ -8,6 +8,7 @@ import { Benefits } from "@widgets/Benefits";
 import { Footer } from "@widgets/Footer";
 import { formatPrice } from "@shared/lib/product";
 import { filterProducts } from "@shared/lib/catalog";
+import { t } from "@shared/lib/i18n";
 import type { BenefitKey } from "@shared/lib/benefits";
 import { el } from "@shared/lib/dom";
 import "./ui/HomePage.css";
@@ -53,34 +54,31 @@ export function HomePage({
   const hero = Hero({
     slides: [
       {
-        eyebrow: "Новая коллекция 2026",
-        title: "Техника, которая вдохновляет",
-        subtitle:
-          "Смартфоны, ноутбуки и аксессуары ведущих брендов. Выгодные цены, быстрая доставка и гарантия.",
-        ctaLabel: "Смотреть каталог",
+        eyebrow: t("hero.slide1.eyebrow"),
+        title: t("hero.slide1.title"),
+        subtitle: t("hero.slide1.subtitle"),
+        ctaLabel: t("hero.slide1.cta"),
         onCtaClick: () => goToCategory("Все"),
         image: "/img/hero.jpg",
-        alt: "Техника и электроника",
+        alt: t("hero.slide1.alt"),
       },
       {
-        eyebrow: "Смартфоны",
-        title: "Новое поколение мобильных",
-        subtitle:
-          "Мощные камеры, яркие экраны и быстрая зарядка. Найдите свой идеальный смартфон.",
-        ctaLabel: "Выбрать смартфон",
+        eyebrow: t("hero.slide2.eyebrow"),
+        title: t("hero.slide2.title"),
+        subtitle: t("hero.slide2.subtitle"),
+        ctaLabel: t("hero.slide2.cta"),
         onCtaClick: () => goToCategory("Смартфоны"),
         image: "/img/phone.jpg",
-        alt: "Смартфон",
+        alt: t("hero.slide2.alt"),
       },
       {
-        eyebrow: "Для работы и учёбы",
-        title: "Ноутбуки на любой вкус",
-        subtitle:
-          "Лёгкие, мощные и стильные. Для работы, учёбы и игр — по выгодной цене.",
-        ctaLabel: "Смотреть ноутбуки",
+        eyebrow: t("hero.slide3.eyebrow"),
+        title: t("hero.slide3.title"),
+        subtitle: t("hero.slide3.subtitle"),
+        ctaLabel: t("hero.slide3.cta"),
         onCtaClick: () => goToCategory("Ноутбуки"),
         image: "/img/laptop.jpg",
-        alt: "Ноутбук",
+        alt: t("hero.slide3.alt"),
       },
     ],
   });
@@ -95,16 +93,18 @@ export function HomePage({
     el("h2", {
       class: "home__heading-title",
       "data-heading-title": "",
-      text: "Каталог товаров",
+      text: t("home.catalog.title"),
     }),
     el(
       "p",
       { class: "home__heading-total" },
-      "В корзине: ",
+      el("span", { text: t("home.cart.label") }),
+      " ",
       el("strong", { "data-cart-total": "", text: formatPrice(total) }),
       " · ",
       el("span", { "data-cart-count-inline": "", text: "0" }),
-      " шт.",
+      " ",
+      el("span", { text: t("home.cart.pieces") }),
     ),
   );
 
@@ -135,12 +135,12 @@ export function HomePage({
     );
     if (headingTitle) {
       headingTitle.textContent = state.brand
-        ? `Бренд: ${state.brand}`
+        ? t("home.catalog.brand", { brand: state.brand })
         : state.tag === "new"
-        ? "Новинки"
+        ? t("home.catalog.new")
         : state.tag === "sale"
-        ? "Скидки"
-        : "Каталог товаров";
+        ? t("home.catalog.sale")
+        : t("home.catalog.title");
     }
 
     listHost.replaceChildren(
@@ -172,10 +172,9 @@ export function HomePage({
 
   catalog.append(heading, categoryNav, listHost);
   page.append(hero, catalog, PromoBanner({
-    title: "Скидки до 40% на технику",
-    subtitle:
-      "Успейте купить смартфоны и ноутбуки по сниженным ценам. Количество товара ограничено.",
-    ctaLabel: "Смотреть скидки",
+    title: t("home.promo.title"),
+    subtitle: t("home.promo.subtitle"),
+    ctaLabel: t("home.promo.cta"),
     onCtaClick: () => {
       document
         .getElementById("catalog")

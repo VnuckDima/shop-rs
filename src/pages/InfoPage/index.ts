@@ -1,5 +1,13 @@
-import { createBenefitIcon, getBenefit, type BenefitKey } from "@shared/lib/benefits";
+import {
+  benefitDetails,
+  benefitText,
+  benefitTitle,
+  createBenefitIcon,
+  getBenefit,
+  type BenefitKey,
+} from "@shared/lib/benefits";
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
 import "./ui/InfoPage.css";
 
 export type InfoPageProps = {
@@ -9,18 +17,19 @@ export type InfoPageProps = {
 
 export function InfoPage({ benefitKey, onBack }: InfoPageProps): HTMLElement {
   const benefit = getBenefit(benefitKey);
+  const title = benefitTitle(benefitKey);
 
   const back = el(
     "button",
     { type: "button", class: "info-page__back" },
-    "← Назад",
+    t("product.page.back"),
   );
   back.addEventListener("click", () => onBack?.());
 
   const details = el(
     "div",
     { class: "info-page__details" },
-    ...benefit.details.map((paragraph) =>
+    ...benefitDetails(benefitKey).map((paragraph) =>
       el("p", { class: "info-page__paragraph", text: paragraph }),
     ),
   );
@@ -38,11 +47,11 @@ export function InfoPage({ benefitKey, onBack }: InfoPageProps): HTMLElement {
         el("img", {
           class: "info-page__image",
           src: benefit.image,
-          alt: benefit.title,
+          alt: title,
         }),
         el("span", { class: "info-page__icon" }, createBenefitIcon(benefit.key)),
-        el("h1", { class: "info-page__title", text: benefit.title }),
-        el("p", { class: "info-page__lead", text: benefit.text }),
+        el("h1", { class: "info-page__title", text: title }),
+        el("p", { class: "info-page__lead", text: benefitText(benefitKey) }),
         details,
       ),
     ),

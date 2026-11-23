@@ -8,6 +8,7 @@ import { ProductPage } from "@pages/ProductPage";
 import { createCartDrawer } from "@widgets/CartDrawer";
 import { Header, updateCartCount, type NavKey } from "@widgets/Header";
 import type { Product } from "@shared/lib/product";
+import { onLocaleChange, t } from "@shared/lib/i18n";
 import { loadProducts } from "@shared/lib/catalog-storage";
 import { loadRoute, saveRoute, type Route } from "./route";
 import { MOCK_PRODUCTS, CATEGORIES } from "./mock/products";
@@ -26,7 +27,7 @@ function bootstrap(root: HTMLElement): void {
     onCheckout: () => {
       cart.clear();
       drawer.close();
-      window.alert("Заказ оформлен! Спасибо за покупку.");
+      window.alert(t("alert.orderPlaced"));
     },
   });
 
@@ -158,5 +159,12 @@ export function mountApp(selector = "#app"): void {
   if (!root) {
     throw new Error(`Root element "${selector}" not found`);
   }
-  bootstrap(root);
+
+  const run = () => {
+    root.replaceChildren();
+    bootstrap(root);
+  };
+
+  run();
+  onLocaleChange(run);
 }

@@ -1,4 +1,5 @@
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
 import "./ui/Brands.css";
 
 const BRANDS = [
@@ -41,7 +42,7 @@ export function Brands({ onSelect }: BrandsProps = {}): HTMLElement {
     el(
       "div",
       { class: "brands__inner container" },
-      el("h2", { class: "brands__title", text: "Популярные бренды" }),
+      el("h2", { class: "brands__title", text: t("brands.title") }),
       grid,
     ),
   );

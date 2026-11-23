@@ -1,5 +1,6 @@
 import { Button } from "@shared/ui/Button";
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
 import "./ui/PromoBanner.css";
 
 export type PromoBannerProps = {
@@ -12,7 +13,7 @@ export type PromoBannerProps = {
 export function PromoBanner({
   title,
   subtitle,
-  ctaLabel = "Выбрать товар",
+  ctaLabel = t("home.promo.cta"),
   onCtaClick,
 }: PromoBannerProps): HTMLElement {
   const cta = el("div", { class: "promo__cta" });

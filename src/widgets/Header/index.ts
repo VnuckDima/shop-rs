@@ -1,4 +1,6 @@
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
+import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
 import { ThemeToggle } from "@shared/ui/ThemeToggle";
 import "./ui/Header.css";
 
@@ -12,11 +14,11 @@ export type HeaderProps = {
   onHome?: () => void;
 };
 
-const NAV_LINKS: { key: NavKey; label: string }[] = [
-  { key: "catalog", label: "Каталог" },
-  { key: "new", label: "Новинки" },
-  { key: "sale", label: "Скидки" },
-  { key: "brands", label: "Бренды" },
+const NAV_LINKS: { key: NavKey; labelKey: string }[] = [
+  { key: "catalog", labelKey: "header.nav.catalog" },
+  { key: "new", labelKey: "header.nav.new" },
+  { key: "sale", labelKey: "header.nav.sale" },
+  { key: "brands", labelKey: "header.nav.brands" },
 ];
 
 export function Header({
@@ -43,7 +45,7 @@ export function Header({
         class: `header__link${index === 0 ? " header__link--active" : ""}`,
         href: "#",
       },
-      link.label,
+      t(link.labelKey),
     ),
   );
 
@@ -60,8 +62,8 @@ export function Header({
   const searchInput = el("input", {
     type: "search",
     class: "header__search-input",
-    placeholder: "Поиск товаров…",
-    "aria-label": "Поиск товаров",
+    placeholder: t("header.search.placeholder"),
+    "aria-label": t("header.search.aria"),
   });
   searchInput.addEventListener("input", () => {
     onSearch?.(searchInput.value);
@@ -69,7 +71,7 @@ export function Header({
 
   const cartButton = el(
     "button",
-    { type: "button", class: "header__cart", "aria-label": "Корзина" },
+    { type: "button", class: "header__cart", "aria-label": t("header.cart.aria") },
     el("span", { class: "header__cart-icon", "aria-hidden": "true", text: "🛒" }),
     el("span", { class: "header__badge", "data-cart-count": "", text: String(cartCount) }),
   );
@@ -92,7 +94,7 @@ export function Header({
     logo,
     el(
       "nav",
-      { class: "header__nav", "aria-label": "Основная навигация" },
+      { class: "header__nav", "aria-label": t("header.nav.aria") },
       ...navLinks,
     ),
     el(
@@ -104,6 +106,7 @@ export function Header({
         el("span", { class: "header__search-icon", "aria-hidden": "true", text: "⌕" }),
         searchInput,
       ),
+      LanguageSwitcher(),
       ThemeToggle(),
       cartButton,
     ),

@@ -1,5 +1,6 @@
 import type { CartApi, CartLine } from "@features/cart";
 import { formatPrice } from "@shared/lib/product";
+import { t } from "@shared/lib/i18n";
 import { Button } from "@shared/ui/Button";
 import { el } from "@shared/lib/dom";
 import "./ui/CartDrawer.css";
@@ -28,7 +29,7 @@ export function createCartDrawer({
     type: "button",
     class: "drawer__close",
     "data-close": "",
-    "aria-label": "Закрыть",
+    "aria-label": t("cart.close"),
     text: "✕",
   });
 
@@ -38,12 +39,12 @@ export function createCartDrawer({
       class: "drawer__panel",
       role: "dialog",
       "aria-modal": "true",
-      "aria-label": "Корзина",
+      "aria-label": t("cart.title"),
     },
     el(
       "header",
       { class: "drawer__header" },
-      el("h2", { class: "drawer__title", text: "Корзина" }),
+      el("h2", { class: "drawer__title", text: t("cart.title") }),
       closeButton,
     ),
     body,
@@ -60,10 +61,10 @@ export function createCartDrawer({
         "div",
         { class: "drawer__empty" },
         el("span", { class: "drawer__empty-icon", text: "🛒" }),
-        el("p", { text: "Корзина пуста" }),
+        el("p", { text: t("cart.empty") }),
         el("span", {
           class: "drawer__empty-hint",
-          text: "Добавьте товары из каталога",
+          text: t("cart.emptyHint"),
         }),
       ),
     );
@@ -86,7 +87,7 @@ export function createCartDrawer({
             type: "button",
             class: "cart-line__btn",
             "data-dec": "",
-            "aria-label": "Уменьшить",
+            "aria-label": t("cart.dec"),
             text: "−",
           }),
           el("span", { class: "cart-line__count", text: String(line.qty) }),
@@ -94,7 +95,7 @@ export function createCartDrawer({
             type: "button",
             class: "cart-line__btn",
             "data-inc": "",
-            "aria-label": "Увеличить",
+            "aria-label": t("cart.inc"),
             text: "+",
           }),
         ),
@@ -106,7 +107,7 @@ export function createCartDrawer({
           type: "button",
           class: "cart-line__remove",
           "data-remove": "",
-          "aria-label": "Удалить",
+          "aria-label": t("cart.remove"),
           text: "✕",
         }),
         el("span", {
@@ -152,7 +153,7 @@ export function createCartDrawer({
       el(
         "div",
         { class: "drawer__summary" },
-        el("span", { class: "drawer__summary-label", text: "Итого" }),
+        el("span", { class: "drawer__summary-label", text: t("cart.total") }),
         el("span", { class: "drawer__summary-total", text: formatPrice(cart.total()) }),
       ),
       checkoutSlot,
@@ -160,7 +161,7 @@ export function createCartDrawer({
 
     if (!empty) {
       checkoutSlot.appendChild(
-        Button({ label: "Оформить заказ", onClick: () => onCheckout?.() }),
+        Button({ label: t("cart.checkout"), onClick: () => onCheckout?.() }),
       );
     }
   };
@@ -189,7 +190,7 @@ export function createCartDrawer({
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && isOpen()) close();
+    if (event.key === "Escape" && overlay.isConnected && isOpen()) close();
   });
 
   return {

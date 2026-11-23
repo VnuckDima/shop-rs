@@ -1,21 +1,17 @@
 import { svgIcon } from "./dom";
+import { t } from "./i18n";
 
 export type BenefitKey = "delivery" | "warranty" | "returns" | "installment";
 
 export type BenefitInfo = {
   key: BenefitKey;
-  title: string;
-  text: string;
   image: string;
   iconPaths: string[];
-  details: string[];
 };
 
 export const BENEFITS: BenefitInfo[] = [
   {
     key: "delivery",
-    title: "Быстрая доставка",
-    text: "По всей стране за 1–3 дня. Бесплатно от 5 000 ₽.",
     image: "/img/delivery.jpg",
     iconPaths: [
       "M1 3h15v13H1z",
@@ -23,47 +19,21 @@ export const BENEFITS: BenefitInfo[] = [
       "M5.5 18.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4",
       "M18.5 18.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4",
     ],
-    details: [
-      "Доставляем заказы по всей России курьером и в пункты выдачи. Срок доставки — от 1 до 3 рабочих дней в зависимости от региона.",
-      "При заказе от 5 000 ₽ доставка бесплатная. Для заказов на меньшую сумму стоимость рассчитывается при оформлении.",
-      "Отследить посылку можно по трек-номеру, который приходит в SMS и на электронную почту после отправки.",
-    ],
   },
   {
     key: "warranty",
-    title: "Гарантия 2 года",
-    text: "Официальная гарантия производителя на всю технику.",
     image: "/img/warranty.jpg",
     iconPaths: ["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"],
-    details: [
-      "На всю технику в каталоге действует официальная гарантия производителя сроком 24 месяца.",
-      "Обслуживание выполняется в авторизованных сервисных центрах. Для обращения понадобится чек или гарантийный талон.",
-      "Если товар окажется неисправным, мы организуем диагностику и ремонт или замену в разумный срок.",
-    ],
   },
   {
     key: "returns",
-    title: "Лёгкий возврат",
-    text: "14 дней на возврат без лишних вопросов.",
     image: "/img/returns.jpg",
     iconPaths: ["M1 4v6h6", "M3.51 15a9 9 0 1 0 2.13-9.36L1 10"],
-    details: [
-      "Вернуть товар можно в течение 14 дней после покупки, если он сохранил товарный вид и упаковку.",
-      "Деньги возвращаются тем же способом, которым была произведена оплата, в течение 3–10 рабочих дней.",
-      "Для оформления возврата свяжитесь с поддержкой — мы подскажем порядок действий и поможем с отправкой.",
-    ],
   },
   {
     key: "installment",
-    title: "Оплата частями",
-    text: "Рассрочка 0-0-6 без переплат и первого взноса.",
     image: "/img/installment.jpg",
     iconPaths: ["M1 4h22v16H1z", "M1 10h22"],
-    details: [
-      "Оформите рассрочку 0-0-6 на 6 месяцев без первого взноса и переплат.",
-      "Доступна для заказов от 3 000 ₽. Решение принимается за несколько минут при оформлении.",
-      "Условия и итоговую стоимость вы увидите до подтверждения заказа — никаких скрытых платежей.",
-    ],
   },
 ];
 
@@ -75,4 +45,16 @@ export function getBenefit(key: BenefitKey): BenefitInfo {
 
 export function createBenefitIcon(key: BenefitKey): SVGElement {
   return svgIcon(getBenefit(key).iconPaths);
+}
+
+export function benefitTitle(key: BenefitKey): string {
+  return t(`benefit.${key}.title`);
+}
+
+export function benefitText(key: BenefitKey): string {
+  return t(`benefit.${key}.text`);
+}
+
+export function benefitDetails(key: BenefitKey): string[] {
+  return [1, 2, 3].map((index) => t(`benefit.${key}.detail${index}`));
 }

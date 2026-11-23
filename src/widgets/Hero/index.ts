@@ -1,5 +1,6 @@
 import { Button } from "@shared/ui/Button";
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
 import "./ui/Hero.css";
 
 export type HeroSlide = {
@@ -80,7 +81,7 @@ export function Hero({ slides, interval = 6000 }: HeroProps): HTMLElement {
     const dot = document.createElement("button");
     dot.type = "button";
     dot.className = `hero__dot${index === 0 ? " is-active" : ""}`;
-    dot.setAttribute("aria-label", `Слайд ${index + 1}`);
+    dot.setAttribute("aria-label", t("hero.dot.aria", { index: index + 1 }));
     dot.addEventListener("click", () => goTo(index));
     dotEls.push(dot);
     dotsEl.appendChild(dot);
@@ -89,13 +90,13 @@ export function Hero({ slides, interval = 6000 }: HeroProps): HTMLElement {
   const prev = document.createElement("button");
   prev.type = "button";
   prev.className = "hero__arrow";
-  prev.setAttribute("aria-label", "Предыдущий слайд");
+  prev.setAttribute("aria-label", t("hero.prev.aria"));
   prev.textContent = "‹";
 
   const next = document.createElement("button");
   next.type = "button";
   next.className = "hero__arrow";
-  next.setAttribute("aria-label", "Следующий слайд");
+  next.setAttribute("aria-label", t("hero.next.aria"));
   next.textContent = "›";
 
   let current = 0;
@@ -114,7 +115,13 @@ export function Hero({ slides, interval = 6000 }: HeroProps): HTMLElement {
   const start = () => {
     stop();
     if (slides.length > 1) {
-      timer = window.setInterval(() => goTo(current + 1), interval);
+      timer = window.setInterval(() => {
+        if (!section.isConnected) {
+          stop();
+          return;
+        }
+        goTo(current + 1);
+      }, interval);
     }
   };
 

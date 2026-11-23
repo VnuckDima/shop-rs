@@ -1,5 +1,7 @@
 import { Button } from "@shared/ui/Button";
+import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
 import { ThemeToggle } from "@shared/ui/ThemeToggle";
+import { getLocale, t } from "@shared/lib/i18n";
 import { el } from "@shared/lib/dom";
 import "./ui/AboutPage.css";
 
@@ -7,6 +9,7 @@ export type TeamMember = {
   name: string;
   github: string;
   role: string;
+  roleEn?: string;
 };
 
 export type AboutPageProps = {
@@ -15,10 +18,10 @@ export type AboutPageProps = {
 };
 
 const FEATURES = [
-  "Каталог товаров с поиском и фильтрами по категориям",
-  "Карточка товара с характеристиками",
-  "Корзина с изменением количества и удалением",
-  "Автоматический пересчёт суммы и количества",
+  "about.features.1",
+  "about.features.2",
+  "about.features.3",
+  "about.features.4",
 ];
 
 export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
@@ -28,7 +31,7 @@ export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
     "ul",
     { class: "about__features" },
     ...FEATURES.map((feature) =>
-      el("li", { class: "about__feature", text: feature }),
+      el("li", { class: "about__feature", text: t(feature) }),
     ),
   );
 
@@ -62,14 +65,20 @@ export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
             class: "about__member-github",
             text: `@${username}`,
           }),
-          el("p", { class: "about__member-role", text: member.role }),
+          el("p", {
+            class: "about__member-role",
+            text:
+              getLocale() === "en" && member.roleEn
+                ? member.roleEn
+                : member.role,
+          }),
         ),
       );
     }),
   );
 
   const startButton = Button({
-    label: "Перейти в магазин",
+    label: t("about.start"),
     onClick: () => onStart?.(),
   });
 
@@ -80,16 +89,23 @@ export function AboutPage({ team, onStart }: AboutPageProps): HTMLElement {
     el("h1", { class: "about__title", text: "Shop-RS" }),
     el("p", {
       class: "about__subtitle",
-      text: "Учебный интернет-магазин электроники. Командный проект: каталог, карточки товаров и корзина.",
+      text: t("about.subtitle"),
     }),
-    el("h2", { class: "about__section-title", text: "Что умеет приложение" }),
+    el("h2", { class: "about__section-title", text: t("about.featuresTitle") }),
     featuresList,
-    el("h2", { class: "about__section-title", text: "Команда" }),
+    el("h2", { class: "about__section-title", text: t("about.teamTitle") }),
     teamList,
     el("div", { class: "about__actions" }, startButton),
   );
 
-  page.appendChild(el("div", { class: "about__toolbar" }, ThemeToggle()));
+  page.appendChild(
+    el(
+      "div",
+      { class: "about__toolbar" },
+      LanguageSwitcher(),
+      ThemeToggle(),
+    ),
+  );
   page.appendChild(card);
 
   return page;

@@ -1,4 +1,5 @@
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
 import { toggleTheme, type Theme } from "@shared/lib/theme";
 import "./ui/ThemeToggle.css";
 
@@ -16,8 +17,8 @@ export function ThemeToggle({
     {
       type: "button",
       class: `theme-toggle ${className}`.trim(),
-      "aria-label": "Переключить тему",
-      title: "Переключить тему",
+      "aria-label": t("theme.toggle"),
+      title: t("theme.toggle"),
     },
     el("span", {
       class: "theme-toggle__icon theme-toggle__icon--sun",

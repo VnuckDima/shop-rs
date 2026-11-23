@@ -1,5 +1,12 @@
-import { BENEFITS, createBenefitIcon, type BenefitKey } from "@shared/lib/benefits";
+import {
+  BENEFITS,
+  benefitText,
+  benefitTitle,
+  createBenefitIcon,
+  type BenefitKey,
+} from "@shared/lib/benefits";
 import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
 import "./ui/Benefits.css";
 
 export type BenefitsProps = {
@@ -18,8 +25,8 @@ export function Benefits({ onSelect }: BenefitsProps = {}): HTMLElement {
         loading: "lazy",
       }),
       el("span", { class: "benefit__icon" }, createBenefitIcon(item.key)),
-      el("h3", { class: "benefit__title", text: item.title }),
-      el("p", { class: "benefit__text", text: item.text }),
+      el("h3", { class: "benefit__title", text: benefitTitle(item.key) }),
+      el("p", { class: "benefit__text", text: benefitText(item.key) }),
     );
 
     card.addEventListener("click", (event) => {
@@ -38,7 +45,7 @@ export function Benefits({ onSelect }: BenefitsProps = {}): HTMLElement {
     el(
       "div",
       { class: "benefits__inner container" },
-      el("h2", { class: "benefits__title", text: "Почему выбирают нас" }),
+      el("h2", { class: "benefits__title", text: t("benefits.title") }),
       grid,
     ),
   );

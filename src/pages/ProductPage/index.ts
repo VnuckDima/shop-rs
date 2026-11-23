@@ -1,6 +1,13 @@
 import type { CartApi } from "@features/cart";
 import type { Product } from "@shared/lib/product";
-import { formatPrice } from "@shared/lib/product";
+import {
+  formatPrice,
+  productDescription,
+  productTitle,
+  specLabel,
+  specValue,
+} from "@shared/lib/product";
+import { categoryLabel, t } from "@shared/lib/i18n";
 import { Button } from "@shared/ui/Button";
 import { el } from "@shared/lib/dom";
 import "./ui/ProductPage.css";
@@ -11,10 +18,10 @@ export type ProductPageProps = {
   onBack?: () => void;
 };
 
-const BADGE_LABEL: Record<NonNullable<Product["badge"]>, string> = {
-  hit: "Хит",
-  new: "Новинка",
-  sale: "Скидка",
+const BADGE_LABEL_KEY: Record<NonNullable<Product["badge"]>, string> = {
+  hit: "product.badge.hit",
+  new: "product.badge.new",
+  sale: "product.badge.sale",
 };
 
 export function ProductPage({
@@ -25,7 +32,7 @@ export function ProductPage({
   const back = el(
     "button",
     { type: "button", class: "product-page__back" },
-    "← Назад",
+    t("product.page.back"),
   );
   back.addEventListener("click", () => onBack?.());
 
@@ -39,7 +46,7 @@ export function ProductPage({
     if (qty <= 0) {
       controls.appendChild(
         Button({
-          label: "В корзину",
+          label: t("product.page.add"),
           onClick: () => cart.add(product),
         }),
       );
@@ -52,14 +59,14 @@ export function ProductPage({
       el("button", {
         type: "button",
         class: "product-page__qty-btn",
-        "aria-label": "Уменьшить количество",
+        "aria-label": t("product.page.dec"),
         text: "−",
       }),
       el("span", { class: "product-page__qty-count", text: String(qty) }),
       el("button", {
         type: "button",
         class: "product-page__qty-btn",
-        "aria-label": "Увеличить количество",
+        "aria-label": t("product.page.inc"),
         text: "+",
       }),
     );
@@ -73,12 +80,12 @@ export function ProductPage({
     controls.append(
       group,
       Button({
-        label: "Удалить",
+        label: t("product.page.remove"),
         variant: "ghost",
         onClick: () => cart.remove(product.id),
       }),
       Button({
-        label: "Купить в 1 клик",
+        label: t("product.page.buyNow"),
         variant: "ghost",
         onClick: () => {
           cart.add(product);
@@ -120,8 +127,8 @@ export function ProductPage({
       el(
         "li",
         { class: "product-page__spec" },
-        el("span", { class: "product-page__spec-label", text: spec.label }),
-        el("span", { class: "product-page__spec-value", text: spec.value }),
+        el("span", { class: "product-page__spec-label", text: specLabel(spec) }),
+        el("span", { class: "product-page__spec-value", text: specValue(spec) }),
       ),
     ),
   );
@@ -129,22 +136,22 @@ export function ProductPage({
   const info = el(
     "div",
     { class: "product-page__info" },
-    el("span", { class: "product-page__category", text: product.category }),
-    el("h1", { class: "product-page__title", text: product.title }),
+    el("span", { class: "product-page__category", text: categoryLabel(product.category) }),
+    el("h1", { class: "product-page__title", text: productTitle(product) }),
     el(
       "div",
       { class: "product-page__rating" },
       el("span", { class: "product-page__star", text: "★" }),
       ` ${product.rating.toFixed(1)} `,
-      el("span", { class: "product-page__muted", text: "· рейтинг покупателей" }),
+      el("span", { class: "product-page__muted", text: t("product.page.rating") }),
     ),
     el("p", {
       class: "product-page__description",
       text:
-        product.description ?? "Подробное описание скоро появится.",
+        productDescription(product) ?? t("product.page.descriptionFallback"),
     }),
     prices,
-    el("h3", { class: "product-page__specs-title", text: "Характеристики" }),
+    el("h3", { class: "product-page__specs-title", text: t("product.page.specs") }),
     specs,
     controls,
   );
@@ -155,12 +162,12 @@ export function ProductPage({
     el("img", {
       class: "product-page__image",
       src: product.imageUrl,
-      alt: product.title,
+      alt: productTitle(product),
     }),
     product.badge
       ? el("span", {
           class: `product-page__badge product-page__badge--${product.badge}`,
-          text: BADGE_LABEL[product.badge],
+          text: t(BADGE_LABEL_KEY[product.badge]),
         })
       : "",
   );

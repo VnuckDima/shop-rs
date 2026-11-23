@@ -1,8 +1,14 @@
 import { el } from "@shared/lib/dom";
+import { categoryLabel, t } from "@shared/lib/i18n";
 import "./ui/Footer.css";
 
 const CATALOG = ["Смартфоны", "Ноутбуки", "Аудио", "Аксессуары"];
-const BUYERS = ["Доставка", "Оплата", "Возврат", "Гарантия"];
+const BUYERS = [
+  "footer.link.delivery",
+  "footer.link.payment",
+  "footer.link.returns",
+  "footer.link.warranty",
+];
 
 function linkColumn(title: string, links: string[]): HTMLElement {
   return el(
@@ -25,7 +31,7 @@ export function Footer(): HTMLElement {
     ),
     el("p", {
       class: "footer__text",
-      text: "Современный магазин электроники. Доставка по всей стране.",
+      text: t("footer.description"),
     }),
     el(
       "div",
@@ -60,25 +66,25 @@ export function Footer(): HTMLElement {
   const contactsCol = el(
     "div",
     { class: "footer__col" },
-    el("h4", { class: "footer__title", text: "Контакты" }),
+    el("h4", { class: "footer__title", text: t("footer.contacts") }),
     el("a", { class: "footer__link", href: "tel:+78000000000", text: "8 (800) 000-00-00" }),
     el("a", { class: "footer__link", href: "mailto:shop@example.com", text: "shop@example.com" }),
-    el("p", { class: "footer__text", text: "Ежедневно 9:00–21:00" }),
+    el("p", { class: "footer__text", text: t("footer.hours") }),
   );
 
   const inner = el(
     "div",
     { class: "footer__inner container" },
     brandCol,
-    linkColumn("Каталог", CATALOG),
-    linkColumn("Покупателям", BUYERS),
+    linkColumn(t("footer.catalog"), CATALOG.map(categoryLabel)),
+    linkColumn(t("footer.buyers"), BUYERS.map((key) => t(key))),
     contactsCol,
   );
 
   const bottom = el(
     "div",
     { class: "footer__bottom container" },
-    el("span", { text: "© 2026 Shop-RS. Все права защищены." }),
+    el("span", { text: t("footer.copyright") }),
   );
 
   return el("footer", { class: "footer" }, inner, bottom);

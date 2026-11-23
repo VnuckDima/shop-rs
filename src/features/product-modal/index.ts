@@ -1,6 +1,13 @@
 import type { CartApi } from "@features/cart";
 import type { Product } from "@shared/lib/product";
-import { formatPrice } from "@shared/lib/product";
+import {
+  formatPrice,
+  productDescription,
+  productTitle,
+  specLabel,
+  specValue,
+} from "@shared/lib/product";
+import { categoryLabel, t } from "@shared/lib/i18n";
 import { Button } from "@shared/ui/Button";
 import { el } from "@shared/lib/dom";
 import "./ui/ProductModal.css";
@@ -16,10 +23,10 @@ export type ProductModalOptions = {
   cart?: CartApi;
 };
 
-const BADGE_LABEL: Record<NonNullable<Product["badge"]>, string> = {
-  hit: "Хит",
-  new: "Новинка",
-  sale: "Скидка",
+const BADGE_LABEL_KEY: Record<NonNullable<Product["badge"]>, string> = {
+  hit: "product.badge.hit",
+  new: "product.badge.new",
+  sale: "product.badge.sale",
 };
 
 export function createProductModal({
@@ -33,7 +40,7 @@ export function createProductModal({
     type: "button",
     class: "modal__close",
     "data-close": "",
-    "aria-label": "Закрыть",
+    "aria-label": t("product.modal.close"),
     text: "✕",
   });
 
@@ -65,7 +72,7 @@ export function createProductModal({
       title,
       rating,
       description,
-      el("h3", { class: "modal__specs-title", text: "Характеристики" }),
+      el("h3", { class: "modal__specs-title", text: t("product.modal.specs") }),
       specs,
       prices,
       el("div", { class: "modal__actions" }, addSlot),
@@ -92,7 +99,7 @@ export function createProductModal({
     if (qty <= 0 || !cart || !currentProduct) {
       addSlot.appendChild(
         Button({
-          label: "В корзину",
+          label: t("product.modal.add"),
           onClick: () => {
             if (currentProduct) onAddToCart?.(currentProduct);
           },
@@ -109,14 +116,14 @@ export function createProductModal({
       el("button", {
         type: "button",
         class: "modal__qty-btn",
-        "aria-label": "Уменьшить количество",
+        "aria-label": t("product.modal.dec"),
         text: "−",
       }),
       el("span", { class: "modal__qty-count", text: String(qty) }),
       el("button", {
         type: "button",
         class: "modal__qty-btn",
-        "aria-label": "Увеличить количество",
+        "aria-label": t("product.modal.inc"),
         text: "+",
       }),
     );
@@ -130,7 +137,7 @@ export function createProductModal({
     addSlot.append(
       group,
       Button({
-        label: "Удалить",
+        label: t("product.modal.remove"),
         variant: "ghost",
         onClick: () => cart?.remove(productId),
       }),
@@ -150,7 +157,7 @@ export function createProductModal({
     .querySelector(".modal__actions")
     ?.appendChild(
       Button({
-        label: "Купить в 1 клик",
+        label: t("product.modal.buyNow"),
         variant: "ghost",
         onClick: () => {
           if (currentProduct) onAddToCart?.(currentProduct);
@@ -164,23 +171,24 @@ export function createProductModal({
     currentProduct = product;
 
     image.src = product.imageUrl;
-    image.alt = product.title;
-    category.textContent = product.category;
-    title.textContent = product.title;
+    image.alt = productTitle(product);
+    category.textContent = categoryLabel(product.category);
+    title.textContent = productTitle(product);
     rating.replaceChildren(
       el("span", { class: "modal__star", text: "★" }),
       ` ${product.rating.toFixed(1)} `,
       el("span", {
         class: "modal__muted",
-        text: "· рейтинг покупателей",
+        text: t("product.modal.rating"),
       }),
     );
     description.textContent =
-      product.description ?? "Подробное описание скоро появится.";
+      productDescription(product) ??
+      t("product.modal.descriptionFallback");
 
     badge.hidden = !product.badge;
     if (product.badge) {
-      badge.textContent = BADGE_LABEL[product.badge];
+      badge.textContent = t(BADGE_LABEL_KEY[product.badge]);
       badge.className = `modal__badge modal__badge--${product.badge}`;
     }
 
@@ -189,8 +197,8 @@ export function createProductModal({
         el(
           "li",
           { class: "modal__spec" },
-          el("span", { class: "modal__spec-label", text: spec.label }),
-          el("span", { class: "modal__spec-value", text: spec.value }),
+          el("span", { class: "modal__spec-label", text: specLabel(spec) }),
+          el("span", { class: "modal__spec-value", text: specValue(spec) }),
         ),
       ),
     );
@@ -230,7 +238,7 @@ export function createProductModal({
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !overlay.hidden) close();
+    if (event.key === "Escape" && overlay.isConnected && !overlay.hidden) close();
   });
 
   return { root: overlay, open, close };

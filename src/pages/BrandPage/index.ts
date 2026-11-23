@@ -1,6 +1,7 @@
 import type { Product } from "@entities/Product";
 import { ProductList } from "@widgets/ProductList";
 import { filterProducts } from "@shared/lib/catalog";
+import { pluralSuffix, t } from "@shared/lib/i18n";
 import { el } from "@shared/lib/dom";
 import "./ui/BrandPage.css";
 
@@ -22,7 +23,7 @@ export function BrandPage({
   const back = el(
     "button",
     { type: "button", class: "brand-page__back" },
-    "← Назад в каталог",
+    t("brand.back"),
   );
   back.addEventListener("click", () => onBack?.());
 
@@ -40,7 +41,10 @@ export function BrandPage({
         "div",
         { class: "brand-page__heading" },
         el("h1", { class: "brand-page__title", text: brand }),
-        el("span", { class: "brand-page__count", text: `${count} товаров` }),
+        el("span", {
+          class: "brand-page__count",
+          text: t(`brand.count.${pluralSuffix(count)}`, { count }),
+        }),
       ),
       ProductList({ products: filtered, onAddToCart, onOpen }),
     ),
