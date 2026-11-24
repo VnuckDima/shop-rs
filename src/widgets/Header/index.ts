@@ -1,21 +1,112 @@
+import { NAV_LINKS, type NavKey } from "@shared/constants/navigation";
+import { el } from "@shared/lib/dom";
+import { t } from "@shared/lib/i18n";
+import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
+import { ThemeToggle } from "@shared/ui/ThemeToggle";
 import "./ui/Header.css";
+
+export type { NavKey };
 
 export type HeaderProps = {
   cartCount: number;
+  onSearch?: (query: string) => void;
+  onCartClick?: () => void;
+  onNav?: (key: NavKey) => void;
+  onHome?: () => void;
 };
 
-export function Header({ cartCount }: HeaderProps): HTMLElement {
-  const header = document.createElement("header");
-  header.className = "header";
+export function Header({
+  cartCount,
+  onSearch,
+  onCartClick,
+  onNav,
+  onHome,
+}: HeaderProps): HTMLElement {
+  const header = el("header", { class: "header" });
 
-  header.innerHTML = `
-    <div class="header__inner">
-      <a class="header__logo" href="#">Shop-RS</a>
-      <button type="button" class="header__cart">
-        Корзина <span class="header__badge" data-cart-count>${cartCount}</span>
-      </button>
-    </div>
-  `;
+  const setActive = (key: NavKey) => {
+    header
+      .querySelectorAll<HTMLAnchorElement>(".header__link")
+      .forEach((link) => {
+        link.classList.toggle("header__link--active", link.dataset.nav === key);
+      });
+  };
+
+  const navLinks = NAV_LINKS.map((link, index) =>
+    el(
+      "a",
+      {
+        class: `header__link${index === 0 ? " header__link--active" : ""}`,
+        href: "#",
+      },
+      t(link.labelKey),
+    ),
+  );
+
+  navLinks.forEach((link, index) => {
+    const key = NAV_LINKS[index].key;
+    link.dataset.nav = key;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      setActive(key);
+      onNav?.(key);
+    });
+  });
+
+  const searchInput = el("input", {
+    type: "search",
+    class: "header__search-input",
+    placeholder: t("header.search.placeholder"),
+    "aria-label": t("header.search.aria"),
+  });
+  searchInput.addEventListener("input", () => {
+    onSearch?.(searchInput.value);
+  });
+
+  const cartButton = el(
+    "button",
+    { type: "button", class: "header__cart", "aria-label": t("header.cart.aria") },
+    el("span", { class: "header__cart-icon", "aria-hidden": "true", text: "🛒" }),
+    el("span", { class: "header__badge", "data-cart-count": "", text: String(cartCount) }),
+  );
+  cartButton.addEventListener("click", () => onCartClick?.());
+
+  const logo = el(
+    "a",
+    { class: "header__logo", href: "#" },
+    el("span", { class: "header__logo-mark", text: "◈" }),
+    " Shop-RS",
+  );
+  logo.addEventListener("click", (event) => {
+    event.preventDefault();
+    onHome?.();
+  });
+
+  const inner = el(
+    "div",
+    { class: "header__inner container" },
+    logo,
+    el(
+      "nav",
+      { class: "header__nav", "aria-label": t("header.nav.aria") },
+      ...navLinks,
+    ),
+    el(
+      "div",
+      { class: "header__actions" },
+      el(
+        "div",
+        { class: "header__search" },
+        el("span", { class: "header__search-icon", "aria-hidden": "true", text: "⌕" }),
+        searchInput,
+      ),
+      LanguageSwitcher(),
+      ThemeToggle(),
+      cartButton,
+    ),
+  );
+
+  header.appendChild(inner);
 
   return header;
 }
