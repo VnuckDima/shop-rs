@@ -59,7 +59,7 @@ export function HomePage({
         subtitle: t("hero.slide1.subtitle"),
         ctaLabel: t("hero.slide1.cta"),
         onCtaClick: () => goToCategory("Все"),
-        image: "/img/hero.jpg",
+        image: "/img/imageheroblock.webp",
         alt: t("hero.slide1.alt"),
       },
       {
