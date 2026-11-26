@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   locale: "shop-rs:locale",
   route: "shop-rs:route",
   cart: "shop-rs:cart",
+  favorites: "shop-rs:favorites",
   products: "shop-rs:products:v1",
 } as const;
 

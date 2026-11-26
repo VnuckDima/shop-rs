@@ -1,3 +1,4 @@
+
 import type { Product } from "@entities/Product";
 import { Hero } from "@widgets/Hero";
 import { CategoryNav, updateActiveCategory } from "@widgets/CategoryNav";
@@ -8,6 +9,8 @@ import { Benefits } from "@widgets/Benefits";
 import { Footer } from "@widgets/Footer";
 import { formatPrice } from "@shared/lib/product";
 import { filterProducts } from "@shared/lib/catalog";
+import type { FavoritesApi } from "@features/favorites";
+import type { CartApi } from "@features/cart";
 import { t } from "@shared/lib/i18n";
 import type { BenefitKey } from "@shared/lib/benefits";
 import { el } from "@shared/lib/dom";
@@ -15,6 +18,8 @@ import "./ui/HomePage.css";
 
 export type HomePageProps = {
   products: Product[];
+  favorites: FavoritesApi;
+  cart: CartApi;
   categories: readonly string[];
   total: number;
   onAddToCart: (product: Product) => void;
@@ -30,10 +35,14 @@ export type HomePageController = {
   setTag: (tag: "new" | "sale" | null) => void;
   setBrand: (brand: string | null) => void;
   setCart: (total: number, count: number) => void;
+  refreshFavorites: () => void;
+  refreshCart: () => void;
 };
 
 export function HomePage({
   products,
+  favorites,
+  cart,
   categories,
   total,
   onAddToCart,
@@ -41,6 +50,7 @@ export function HomePage({
   onBrandSelect,
   onInfoSelect,
 }: HomePageProps): HomePageController {
+
   const state = {
     query: "",
     category: categories[0] ?? "Все",
@@ -100,9 +110,15 @@ export function HomePage({
       { class: "home__heading-total" },
       el("span", { text: t("home.cart.label") }),
       " ",
-      el("strong", { "data-cart-total": "", text: formatPrice(total) }),
+      el("strong", {
+        "data-cart-total": "",
+        text: formatPrice(total),
+      }),
       " · ",
-      el("span", { "data-cart-count-inline": "", text: "0" }),
+      el("span", {
+        "data-cart-count-inline": "",
+        text: "0",
+      }),
       " ",
       el("span", { text: t("home.cart.pieces") }),
     ),
@@ -133,18 +149,29 @@ export function HomePage({
     const headingTitle = page.querySelector<HTMLElement>(
       "[data-heading-title]",
     );
+
     if (headingTitle) {
       headingTitle.textContent = state.brand
         ? t("home.catalog.brand", { brand: state.brand })
         : state.tag === "new"
-        ? t("home.catalog.new")
-        : state.tag === "sale"
-        ? t("home.catalog.sale")
-        : t("home.catalog.title");
+          ? t("home.catalog.new")
+          : state.tag === "sale"
+            ? t("home.catalog.sale")
+            : t("home.catalog.title");
     }
 
     listHost.replaceChildren(
-      ProductList({ products: filtered, onAddToCart, onOpen }),
+      ProductList({
+        products: filtered,
+        onAddToCart,
+        onOpen,
+        onToggleFavorite: (product) => favorites.toggle(product),
+        isFavorite: (product) => favorites.has(product.id),
+        isInCart: (product) =>
+          cart.lines().some(
+            (line) => line.product.id === product.id,
+          ),
+      }),
     );
   };
 
@@ -152,17 +179,23 @@ export function HomePage({
     state.category = category;
     state.tag = null;
     state.brand = null;
+
     updateActiveCategory(categoryNav, state.category);
     renderProducts();
-    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+
+    document
+      .getElementById("catalog")
+      ?.scrollIntoView({ behavior: "smooth" });
   }
 
   const applyBrand = (brand: string | null, scroll: boolean) => {
     state.brand = brand && brand.length > 0 ? brand : null;
     state.category = categories[0] ?? "Все";
     state.tag = null;
+
     updateActiveCategory(categoryNav, state.category);
     renderProducts();
+
     if (scroll) {
       document
         .getElementById("catalog")
@@ -171,55 +204,93 @@ export function HomePage({
   };
 
   catalog.append(heading, categoryNav, listHost);
-  page.append(hero, catalog, PromoBanner({
-    title: t("home.promo.title"),
-    subtitle: t("home.promo.subtitle"),
-    ctaLabel: t("home.promo.cta"),
-    onCtaClick: () => {
-      document
-        .getElementById("catalog")
-        ?.scrollIntoView({ behavior: "smooth" });
-    },
-  }), Brands({
-    onSelect: (brand) =>
-      onBrandSelect ? onBrandSelect(brand) : applyBrand(brand, true),
-  }), Benefits({ onSelect: (key) => onInfoSelect?.(key) }), Footer());
+
+  page.append(
+    hero,
+    catalog,
+    PromoBanner({
+      title: t("home.promo.title"),
+      subtitle: t("home.promo.subtitle"),
+      ctaLabel: t("home.promo.cta"),
+      onCtaClick: () => {
+        document
+          .getElementById("catalog")
+          ?.scrollIntoView({ behavior: "smooth" });
+      },
+    }),
+    Brands({
+      onSelect: (brand) =>
+        onBrandSelect
+          ? onBrandSelect(brand)
+          : applyBrand(brand, true),
+    }),
+    Benefits({
+      onSelect: (key) => onInfoSelect?.(key),
+    }),
+    Footer(),
+  );
 
   renderProducts();
 
   const setCart = (nextTotal: number, count: number) => {
-    const totalEl = page.querySelector<HTMLElement>("[data-cart-total]");
-    if (totalEl) totalEl.textContent = formatPrice(nextTotal);
+    const totalEl = page.querySelector<HTMLElement>(
+      "[data-cart-total]",
+    );
 
-    const countEl = page.querySelector<HTMLElement>("[data-cart-count-inline]");
-    if (countEl) countEl.textContent = String(count);
+    if (totalEl) {
+      totalEl.textContent = formatPrice(nextTotal);
+    }
+
+    const countEl = page.querySelector<HTMLElement>(
+      "[data-cart-count-inline]",
+    );
+
+    if (countEl) {
+      countEl.textContent = String(count);
+    }
   };
 
   return {
     root: page,
+
     setQuery(query) {
       state.query = query;
       renderProducts();
     },
+
     setCategory(category) {
       state.category = category;
       state.tag = null;
       state.brand = null;
+
       updateActiveCategory(categoryNav, category);
       renderProducts();
     },
+
     setTag(tag) {
       state.tag = tag;
       state.brand = null;
+
       if (tag) {
         state.category = categories[0] ?? "Все";
         updateActiveCategory(categoryNav, state.category);
       }
+
       renderProducts();
     },
+
     setBrand(brand) {
       applyBrand(brand ?? "", false);
     },
+
     setCart,
+
+    refreshFavorites() {
+      renderProducts();
+    },
+
+    refreshCart() {
+      renderProducts();
+    },
   };
 }

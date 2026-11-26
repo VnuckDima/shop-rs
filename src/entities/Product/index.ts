@@ -15,6 +15,9 @@ export type { Product };
 export type ProductCardHandlers = {
   onAddToCart?: (product: Product) => void;
   onOpen?: (product: Product) => void;
+  onToggleFavorite?: (product: Product) => void;
+  isFavorite?: (product: Product) => boolean;
+  isInCart?: (product: Product) => boolean;
 };
 
 export function ProductCard(
@@ -25,9 +28,41 @@ export function ProductCard(
 
   const discount = calcDiscount(product);
 
+  const favoriteButton = el("button", {
+  type: "button",
+  class: "product-card__favorite",
+  "aria-label": "Добавить в избранное",
+  "aria-pressed": "false",
+  text: "♡",
+});
+
+const updateFavoriteButton = () => {
+  const active = handlers.isFavorite?.(product) ?? false;
+
+  favoriteButton.textContent = active ? "♥" : "♡";
+  favoriteButton.classList.toggle(
+    "product-card__favorite--active",
+    active,
+  );
+  favoriteButton.setAttribute("aria-pressed", String(active));
+  favoriteButton.setAttribute(
+    "aria-label",
+    active ? "Убрать из избранного" : "Добавить в избранное",
+  );
+};
+
+updateFavoriteButton();
+
+favoriteButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+  handlers.onToggleFavorite?.(product);
+  updateFavoriteButton();
+});
+
   const media = el(
     "div",
     { class: "product-card__media", "data-open": "" },
+    favoriteButton,
     el("img", {
       class: "product-card__image",
       src: product.imageUrl,
@@ -74,6 +109,15 @@ export function ProductCard(
     prices,
   );
 
+  const addButton = Button({
+    label: handlers.isInCart?.(product)
+      ? "В корзине"
+      : t("product.card.add"),
+    onClick: () => {
+      handlers.onAddToCart?.(product);
+    },
+  });
+
   const footer = el(
     "div",
     { class: "product-card__footer" },
@@ -82,10 +126,7 @@ export function ProductCard(
       variant: "ghost",
       onClick: () => handlers.onOpen?.(product),
     }),
-    Button({
-      label: t("product.card.add"),
-      onClick: () => handlers.onAddToCart?.(product),
-    }),
+    addButton,
   );
 
   card.append(media, body, footer);
