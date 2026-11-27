@@ -1,12 +1,19 @@
 import { createCart } from "@features/cart";
 import { createCartStorage } from "@features/cart/storage";
+import { createFavorites } from "@features/favorites";
+import { createFavoritesStorage } from "@features/favorites/storage";
+import { createFavoritesDrawer } from "@widgets/FavoritesDrawer";
 import { AboutPage } from "@pages/AboutPage";
 import { BrandPage } from "@pages/BrandPage";
 import { HomePage } from "@pages/HomePage";
 import { InfoPage } from "@pages/InfoPage";
 import { ProductPage } from "@pages/ProductPage";
 import { createCartDrawer } from "@widgets/CartDrawer";
-import { Header, updateCartCount } from "@widgets/Header";
+import {
+  Header,
+  updateCartCount,
+  updateFavoritesState,
+} from "@widgets/Header";
 import { CATEGORIES } from "@shared/constants/catalog";
 import type { NavKey } from "@shared/constants/navigation";
 import type { Product } from "@shared/lib/product";
@@ -24,6 +31,10 @@ function bootstrap(root: HTMLElement): void {
     storage: createCartStorage(products),
   });
 
+  const favorites = createFavorites({
+  storage: createFavoritesStorage(products),
+  });
+
   const drawer = createCartDrawer({
     cart,
     onCheckout: () => {
@@ -32,6 +43,14 @@ function bootstrap(root: HTMLElement): void {
       window.alert(t("alert.orderPlaced"));
     },
   });
+
+  const favoritesDrawer = createFavoritesDrawer({
+  favorites,
+  onOpen: (product) => {
+    favoritesDrawer.close();
+    openProduct(product);
+  },
+});
 
   let route: Route = loadRoute(products) ?? { name: "about" };
 
@@ -43,23 +62,35 @@ function bootstrap(root: HTMLElement): void {
 
   const toCatalog = () => requestAnimationFrame(() => scrollTo("#catalog"));
 
+  
   const homePage = HomePage({
     products,
+    favorites,
+    cart,
     categories: CATEGORIES,
     total: cart.total(),
     onAddToCart: (product) => cart.add(product),
     onOpen: (product) => openProduct(product),
-    onBrandSelect: (brand) => navigate({ name: "brand", brand }),
+    onBrandSelect: (brand) =>
+      navigate({ name: "brand", brand }),
     onInfoSelect: (key) => {
       navigate({ name: "info", key, back: backRoute() });
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
   });
 
+
+  favorites.subscribe(() => {
+  homePage.refreshFavorites();
+  updateFavoritesState(header, favorites.items().length);
+});
+
   const header = Header({
     cartCount: cart.count(),
+    favoriteCount: favorites.items().length,
     onSearch: (query) => homePage.setQuery(query),
     onCartClick: () => drawer.toggle(),
+    onFavoritesClick: () => favoritesDrawer.toggle(),
     onNav: (key) => handleNav(key),
     onHome: () => handleNav("catalog"),
   });
@@ -70,8 +101,10 @@ function bootstrap(root: HTMLElement): void {
     homePage.setCart(cart.total(), count);
   };
 
-  cart.subscribe(() => syncCart());
-  syncCart();
+  cart.subscribe(() => {
+    syncCart();
+    homePage.refreshCart();
+  });
 
   function openProduct(product: Product): void {
     navigate({ name: "product", product, back: backRoute() });
@@ -113,6 +146,7 @@ function bootstrap(root: HTMLElement): void {
         ProductPage({
           product: current.product,
           cart,
+          favorites,
           onBack: () => navigate(current.back),
         }),
       );
@@ -125,7 +159,7 @@ function bootstrap(root: HTMLElement): void {
       );
     }
 
-    children.push(drawer.root);
+    children.push(drawer.root, favoritesDrawer.root);
     root.replaceChildren(...children);
   }
 

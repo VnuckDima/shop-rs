@@ -9,18 +9,22 @@ export type { NavKey };
 
 export type HeaderProps = {
   cartCount: number;
+  favoriteCount: number;
   onSearch?: (query: string) => void;
   onCartClick?: () => void;
   onNav?: (key: NavKey) => void;
   onHome?: () => void;
+  onFavoritesClick?: () => void;
 };
 
 export function Header({
   cartCount,
+  favoriteCount,
   onSearch,
   onCartClick,
   onNav,
   onHome,
+  onFavoritesClick,
 }: HeaderProps): HTMLElement {
   const header = el("header", { class: "header" });
 
@@ -71,6 +75,23 @@ export function Header({
   );
   cartButton.addEventListener("click", () => onCartClick?.());
 
+
+  const favoritesButton = el(
+    "button",
+    {
+      type: "button",
+      class: `header__favorites${favoriteCount > 0 ? " header__favorites--active" : ""}`,
+      "aria-label": "Избранное",
+    },
+    el("span", {
+      class: "header__favorites-icon",
+      text: favoriteCount > 0 ? "♥" : "♡",
+      "aria-hidden": "true",
+    }),
+  );
+
+  favoritesButton.addEventListener("click", () => onFavoritesClick?.());
+
   const logo = el(
     "a",
     { class: "header__logo", href: "#" },
@@ -102,6 +123,7 @@ export function Header({
       ),
       LanguageSwitcher(),
       ThemeToggle(),
+      favoritesButton,
       cartButton,
     ),
   );
@@ -114,4 +136,20 @@ export function Header({
 export function updateCartCount(root: HTMLElement, count: number): void {
   const badge = root.querySelector<HTMLElement>("[data-cart-count]");
   if (badge) badge.textContent = String(count);
+}
+
+export function updateFavoritesState(
+  root: HTMLElement,
+  count: number,
+): void {
+  const button = root.querySelector<HTMLElement>(".header__favorites");
+  const icon = root.querySelector<HTMLElement>(".header__favorites-icon");
+
+  if (button) {
+    button.classList.toggle("header__favorites--active", count > 0);
+  }
+
+  if (icon) {
+    icon.textContent = count > 0 ? "♥" : "♡";
+  }
 }

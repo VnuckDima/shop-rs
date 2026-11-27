@@ -7,12 +7,18 @@ export type ProductListProps = {
   products: Product[];
   onAddToCart?: (product: Product) => void;
   onOpen?: (product: Product) => void;
+  onToggleFavorite?: (product: Product) => void;
+  isFavorite?: (product: Product) => boolean;
+  isInCart?: (product: Product) => boolean;
 };
 
 export function ProductList({
   products,
   onAddToCart,
   onOpen,
+  onToggleFavorite,
+  isFavorite,
+  isInCart,
 }: ProductListProps): HTMLElement {
   const list = document.createElement("section");
   list.className = "product-list";
@@ -30,7 +36,15 @@ export function ProductList({
   }
 
   for (const product of products) {
-    list.appendChild(ProductCard(product, { onAddToCart, onOpen }));
+    list.appendChild(
+      ProductCard(product, {
+        onAddToCart,
+        onOpen,
+        onToggleFavorite,
+        isFavorite,
+        isInCart,
+      }),
+    );
   }
 
   return list;
